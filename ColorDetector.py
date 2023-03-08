@@ -4,31 +4,31 @@ from pybricks.iodevices import Ev3devSensor
 from pybricks.parameters import Color, Port
 from pybricks.tools import wait
 
-brick = EV3Brick()
+import MultipleBallDetector as mbd
+
 
 import cv2
 
 
-imcap = cv2.VideoCapture(1)
+imcap = cv2.VideoCapture(0)
 
-faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+imcap.set(3, 1280)
+imcap.set(4, 720)
 
 
 while True:
-    success, img = imcap.read() # capture frame from video
+    success, frame = imcap.read() # capture frame from video
+
+    width, height = frame.shape[:2]
     # converting image from color to grayscale
-    imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    for ((x, y), radius) in mbd.getBallCoordinates(frame):
 
-    # Getting corners around the face
-    # 1.3 = scale factor, 5 = minimum neighbor can be detected
-    faces = faceCascade.detectMultiScale(imgGray, 1.3, 5)
+        # To see the centroid clearly
+        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
+        cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
+        cv2.circle(frame, (int(x), int(y)), 5, (0, 0, 255), -1)
 
-    # drawing bounding box around face
-    for (x, y, w, h) in faces:
-        img = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), -1)
-
-    # displaying image with bounding box
-    cv2.imshow('face_detect', img)
+    cv2.imshow('court cam', frame)
     # loop will be broken when 'q' is pressed on the keyboard
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break

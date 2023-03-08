@@ -3,7 +3,7 @@ import cv2
 import imutils
 import numpy as np
 
-frame = cv2.imread("balls.jpg")
+frame = cv2.imread("fullcourse.jpg")
 width, height = frame.shape[:2]
 
 
@@ -20,8 +20,8 @@ def getBallCoordinates(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    lowerBound = (0, 0, 220)
-    upperBound = (255, 35, 255)
+    lowerBound = (0, 0, 213)
+    upperBound = (179, 255, 255)
 
     mask = cv2.inRange(hsv, lowerBound, upperBound)
 
@@ -59,18 +59,26 @@ def getRobotCoordinates(image):
     return rectangles
 
 
+def mapOutFrame(image):
+    blurred = cv2.GaussianBlur(image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    lowerBound = (169, 49, 0)
+    upperBound = (179, 255, 255)
+    mask = cv2.inRange(hsv, lowerBound, upperBound)
+    return mask
+
+"""
 for ((x, y), radius) in getBallCoordinates(frame):
 
     # To see the centroid clearly
-    if radius > 10:
-        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
-        cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
-        cv2.circle(frame, (int(x), int(y)), 5, (0, 0, 255), -1)
+
+    cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
+    cv2.imwrite("circled_course.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
+    cv2.circle(frame, (int(x), int(y)), 5, (0, 0, 255), -1)
 
 for box in getRobotCoordinates(frame):
     cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
 
-"""
 lowerBound = (20, 0, 50)
 upperBound = (50, 205, 255)
 mask = cv2.inRange(hsv, lowerBound, upperBound)
