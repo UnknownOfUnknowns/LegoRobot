@@ -4,6 +4,9 @@ import imutils
 import numpy as np
 
 frame = cv2.imread("fullcourse.jpg")
+                    # Read image
+frame = cv2.resize(frame, (960, 540))
+
 width, height = frame.shape[:2]
 
 
@@ -65,7 +68,19 @@ def mapOutFrame(image):
     lowerBound = (169, 49, 0)
     upperBound = (179, 255, 255)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
-    return mask
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    rectangles = []
+    for points in cnts:
+        rect = cv2.boundingRect(points)
+        rectangles.append(rect)
+
+    return rectangles
+
+court_box =  mapOutFrame(frame)
+for box in court_box:
+    cv2.rectangle(frame, box, (0, 0, 255), 2)
+
 
 """
 for ((x, y), radius) in getBallCoordinates(frame):
