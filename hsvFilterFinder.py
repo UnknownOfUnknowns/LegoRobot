@@ -53,6 +53,7 @@ while True:
 
     # Filter the image and get the binary mask, where white represents
     # your target color
+    hsv = cv2.GaussianBlur(hsv, (11, 11), 0)
     mask = cv2.inRange(hsv, lower_range, upper_range)
 
     # You can also visualize the real part of the target color (Optional)

@@ -5,8 +5,7 @@ import time
 greenLower = (0,0, 220)
 greenUpper = (255, 35, 255)
 
-vs = cv2.VideoCapture(1)
-time.sleep(2.0)
+vs = cv2.VideoCapture(0)
 
 while True:
     _, frame = vs.read()
@@ -17,7 +16,6 @@ while True:
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     width, height = frame.shape[:2]
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-
 
     mask = cv2.inRange(hsv, greenLower, greenUpper)
     mask = cv2.erode(mask, None, iterations=2)
@@ -34,10 +32,10 @@ while True:
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
         # To see the centroid clearly
-        if radius > 10:
-            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
-            cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
-            cv2.circle(frame, center, 5, (0, 0, 255), -1)
+
+        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
+        cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
+        cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
     cv2.imshow("Frame", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
