@@ -2,14 +2,17 @@ from math import atan, sin, cos, sqrt, acos, fabs
 import cv2
 from sender import *
 import math
+
+PIXEL_TO_MM_CONVERSION = 3.15
+
 class Robot:
 
-    def __init__(self, blue, green):
+    def __init__(self, blue, green, yellow):
         self.blue = blue
         self.green = green
         self.dir = self.direction()
-        self.front = (blue[0] + 5 * cos(self.dir / 57.2958), (blue[1] - 5 * sin(self.dir / 57.2958)))
-
+        self.front = (blue[0] + 30 * cos(self.dir / 57.2958), (blue[1] - 30 * sin(self.dir / 57.2958)))
+        self.yellow = yellow
 
     def direction(self):
         if self.blue[0] - self.green[0] == 0:
@@ -35,12 +38,12 @@ class Robot:
 
     def calculateAngleToBall(self, closestBall):
         robotVector = (self.blue[0] - self.green[0], (self.blue[1] - self.green[1]))
-        ballVector = (closestBall[0] - self.blue[0]  , (closestBall[1] - self.blue[1]))
+        ballVector = (closestBall[0] - self.green[0], (closestBall[1] - self.green[1]))
         scalarProduct = robotVector[0] * ballVector[0] + robotVector[1] * ballVector[1]
         lengthMultiple = sqrt(robotVector[0] ** 2 + robotVector[1] ** 2) * sqrt(ballVector[0] ** 2 + ballVector[1] ** 2)
         vinkel = acos(scalarProduct / lengthMultiple) * 57.2958
-        ball_angle = atan(-ballVector[0]/ballVector[1]) * 57.2958
-        if ball_angle < vinkel:
+        left = self.isBallLeft(closestBall)
+        if not left:
             return -vinkel
         return vinkel
 
@@ -50,13 +53,26 @@ class Robot:
         c = sqrt(a ** 2 + b ** 2)
         return c
 
-    def driveToBall(self, closestBall):
-        if fabs(self.calculateAngleToBall(closestBall)) > 2:
-            turn(self.calculateAngleToBall(closestBall))
+    def isBallLeft(self, ball):
+        a1 = self.blue[0] - ball[0]
+        a2 = self.yellow[0] - ball[0]
+        b1 = self.blue[1] - ball[1]
+        b2 = self.yellow[1] - ball[1]
+        c1 = sqrt(a1 ** 2 + b1 ** 2)
+        c2 = sqrt(a2 ** 2 + b2 ** 2)
+        if c1 > c2:
+            return True
+        else:
             return False
 
-        if self.calculateDistance(closestBall) > 5:
-            # drive forward
+    def driveToBall(self, closestBall):
+        angle = self.calculateAngleToBall(closestBall)
+        if fabs(angle) > 2:
+            turn(angle)
+            return False
+        distance = self.calculateDistance(closestBall)
+        if distance > 5:
+            drive(distance*PIXEL_TO_MM_CONVERSION*0.9)
             return False
         return True
 
@@ -65,6 +81,6 @@ class Robot:
         angle = atan(m) - math.pi
         dx = int(goal[0] - self.front[0])
         for x in range(0, dx + 1):
-            y =int( cos(angle) * x)
-            frame[int(self.front[0])+x, int(self.front[1])+y] = 100
+            y = int(cos(angle) * x)
+            frame[int(self.front[0]) + x, int(self.front[1]) + y] = 100
         print(frame)

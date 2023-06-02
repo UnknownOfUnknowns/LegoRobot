@@ -21,7 +21,7 @@ def drive(distance):
     direction = 'f'
     if distance < 0:
         direction = 'b'
-    sentence = 'd' + " " + direction + " " + distance
+    sentence = 'd' + " " + direction + " " + str(distance)
     connectionSocket.send(sentence.encode())
 
 
