@@ -3,6 +3,7 @@ from Robot import *
 from sender import *
 import imutils
 import numpy as np
+from objectdetectors import *
 
 frame = cv2.VideoCapture(0)
 
@@ -66,13 +67,7 @@ def getRobotCoordinates(image):
     return rectangles
 
 
-def getFramePoints(image):
-    blurred = cv2.GaussianBlur(image, (11, 11), 0)
-    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (128, 98, 0)
-    upperBound = (179, 255, 255)
-    mask = cv2.inRange(hsv, lowerBound, upperBound)
-    return mask
+
 
 
 def mapOutFrame(image):
