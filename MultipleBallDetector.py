@@ -38,7 +38,7 @@ def getBallCoordinates(image):
     balls = []
     for points in cnts:
         ball = cv2.minEnclosingCircle(points)
-        if 5> ball[1] > 3:
+        if 7> ball[1] > 3:
          balls.append(ball)
 
     return balls
@@ -102,6 +102,22 @@ def blueGetter(image):
 
     return rectangles
 
+def yellowGetter(image):
+    blurred = cv2.GaussianBlur(image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    lowerBound = (21, 42, 156)
+    upperBound = (69, 129, 255)
+    mask = cv2.inRange(hsv, lowerBound, upperBound)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    rectangles = []
+    for points in cnts:
+        rect = cv2.boundingRect(points)
+        rectangles.append(rect)
+
+    return rectangles
+
 def greenGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -133,18 +149,14 @@ while True:
     balls = getBallCoordinates(fr)
     green = greenGetter(fr)
     blue = blueGetter(fr)
-    if len(green) > 0 and len(blue) > 0:
-        (x,y,w,h) = green[0]
-        centrumGreen = (x+(w/2),y+(h/2))
-        (x,y,w,h) = blue[0]
-        centrumBlue = (x + (w / 2), y + (h / 2))
-       # print(centrumBlue,centrumGreen)
-        robot = Robot(centrumBlue,centrumGreen)
-        print(robot.driveToBall(robot.findClosestBall(balls)))
+    yellow = yellowGetter(fr)
+
 
     for (x, y, w, h) in green:
         cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
     for (x, y, w, h) in blue:
+        cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
+    for (x, y, w, h) in yellow:
         cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
     for ((x, y), radius) in balls:
 
@@ -156,6 +168,17 @@ while True:
     cv2.imshow("t", fr)
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
+
+    if len(green) > 0 and len(blue) > 0:
+        (x,y,w,h) = green[0]
+        centrumGreen = (x+(w/2),y+(h/2))
+        (x,y,w,h) = blue[0]
+        centrumBlue = (x + (w / 2), y + (h / 2))
+        (x, y, w, h) = yellow[0]
+        centrumYellow = (x + (w / 2), y + (h / 2))
+       # print(centrumBlue,centrumGreen)
+        robot = Robot(centrumBlue,centrumGreen,centrumYellow)
+        print(robot.driveToBall(robot.findClosestBall(balls)))
 
 """
 for box in getRobotCoordinates(frame):
