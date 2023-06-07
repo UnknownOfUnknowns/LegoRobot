@@ -72,6 +72,7 @@ def moveCoordinates(coordinates, coord1, coord2, movement_distance, angle):
 
 
 
+
 def obstacleCollision(coordinates, court):
     x_values = [coord[0] for coord in coordinates]
     y_values = [coord[1] for coord in coordinates]
