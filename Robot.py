@@ -9,18 +9,19 @@ class Robot:
 
     def __init__(self, blue, green, yellow):
         self.blue = blue
+        self.frontPoint = ((blue[0]+yellow[0])/2, (blue[1]+yellow[1])/2)
         self.green = green
         self.dir = self.direction()
-        self.front = (blue[0] + 30 * cos(self.dir / 57.2958), (blue[1] - 30 * sin(self.dir / 57.2958)))
+        self.front = (self.frontPoint[0] + 30 * cos(self.dir / 57.2958), (self.frontPoint[1] - 30 * sin(self.dir / 57.2958)))
         self.yellow = yellow
 
     def direction(self):
-        if self.blue[0] - self.green[0] == 0:
-            if self.blue[1] > self.green[1]:
+        if self.frontPoint[0] - self.green[0] == 0:
+            if self.frontPoint[1] > self.green[1]:
                 return 90
             else:
                 return -90
-        m = -(self.blue[1] - self.green[1]) / (self.blue[0] - self.green[0])
+        m = -(self.frontPoint[1] - self.green[1]) / (self.frontPoint[0] - self.green[0])
         v = atan(m) * 57.2958
         return v
 
@@ -37,7 +38,7 @@ class Robot:
         return closest_ball
 
     def calculateAngleToBall(self, closestBall):
-        robotVector = (self.blue[0] - self.green[0], (self.blue[1] - self.green[1]))
+        robotVector = (self.frontPoint[0] - self.green[0], (self.frontPoint[1] - self.green[1]))
         ballVector = (closestBall[0] - self.green[0], (closestBall[1] - self.green[1]))
         scalarProduct = robotVector[0] * ballVector[0] + robotVector[1] * ballVector[1]
         lengthMultiple = sqrt(robotVector[0] ** 2 + robotVector[1] ** 2) * sqrt(ballVector[0] ** 2 + ballVector[1] ** 2)
@@ -68,11 +69,11 @@ class Robot:
     def driveToBall(self, closestBall):
         angle = self.calculateAngleToBall(closestBall)
         if fabs(angle) > 5:
-            turn(angle)
+            turn(1.5*angle)
             return False
         distance = self.calculateDistance(closestBall)
         if distance > 5:
-            drive(distance*PIXEL_TO_MM_CONVERSION*0.9)
+            drive(distance*PIXEL_TO_MM_CONVERSION*0.75)
             return False
         return True
 
