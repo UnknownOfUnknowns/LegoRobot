@@ -3,8 +3,8 @@ import cv2
 from sender import *
 import math
 
-PIXEL_TO_MM_CONVERSION = 3.15
-
+PIXEL_TO_MM_CONVERSION = 1.82
+SMALL_CAM_PIX_TO_MM = 0.1
 class Robot:
 
     def __init__(self, blue, green, yellow):
@@ -67,7 +67,7 @@ class Robot:
 
     def driveToBall(self, closestBall):
         angle = self.calculateAngleToBall(closestBall)
-        if fabs(angle) > 2:
+        if fabs(angle) > 5:
             turn(angle)
             return False
         distance = self.calculateDistance(closestBall)
@@ -84,3 +84,12 @@ class Robot:
             y = int(cos(angle) * x)
             frame[int(self.front[0]) + x, int(self.front[1]) + y] = 100
         print(frame)
+
+    def drive(self, distance, largeCam = True):
+        drive(distance * (PIXEL_TO_MM_CONVERSION if largeCam else SMALL_CAM_PIX_TO_MM) * 0.9)
+    def pickUpBall(self):
+        closeClaw()
+        openClaw()
+
+    def turnRobot(self, angle):
+        turn(angle)

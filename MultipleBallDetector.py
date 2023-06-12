@@ -1,11 +1,16 @@
+import time
+
 import cv2
 from Robot import *
 from sender import *
 import imutils
 import numpy as np
 from objectdetectors import *
-
+from robotCamera import RobotCamera
+from imageFilesReader import getNewestPhoneImage
 frame = cv2.VideoCapture(0)
+frame.set(3, 1280)
+frame.set(4, 720)
 
 # frame = cv2.resize(frame, (960, 540))
 
@@ -24,9 +29,13 @@ def showImage(image):
 def getBallCoordinates(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    """
 
     lowerBound = (0, 0, 213)
     upperBound = (179, 255, 255)
+"""
+    lowerBound = (99, 63, 185)
+    upperBound = (114, 139, 249)
 
     mask = cv2.inRange(hsv, lowerBound, upperBound)
 
@@ -38,8 +47,8 @@ def getBallCoordinates(image):
     balls = []
     for points in cnts:
         ball = cv2.minEnclosingCircle(points)
-        if 7> ball[1] > 3:
-         balls.append(ball)
+        if 7 > ball[1] > 3:
+            balls.append(ball)
 
     return balls
 
@@ -67,9 +76,6 @@ def getRobotCoordinates(image):
     return rectangles
 
 
-
-
-
 def mapOutFrame(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -89,18 +95,21 @@ def mapOutFrame(image):
 def blueGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (0, 214, 179)
-    upperBound = (179, 255, 255)
+    lowerBound = (0, 221, 141)
+    upperBound = (151, 255, 215)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
     rectangles = []
     for points in cnts:
-        rect = cv2.boundingRect(points)
-        rectangles.append(rect)
+        rect = cv2.minEnclosingCircle(points)
+        ((x,y),r) =rect
+        if r > 8:
+            rectangles.append(rect)
 
     return rectangles
+
 
 def yellowGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
@@ -113,15 +122,16 @@ def yellowGetter(image):
 
     rectangles = []
     for points in cnts:
-        rect = cv2.boundingRect(points)
+        rect = cv2.minEnclosingCircle(points)
         rectangles.append(rect)
 
     return rectangles
 
+
 def greenGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (0, 170, 0)
+    lowerBound = (82, 170, 85)
     upperBound = (97, 255, 149)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -129,7 +139,7 @@ def greenGetter(image):
 
     rectangles = []
     for points in cnts:
-        rect = cv2.boundingRect(points)
+        rect = cv2.minEnclosingCircle(points)
         rectangles.append(rect)
 
     return rectangles
@@ -144,41 +154,58 @@ def greenGetter(image):
 
 
 while True:
+
     _, fr = frame.read()
+    frames = [getNewestPhoneImage()]
+
     framePoints = getFramePoints(fr)
-    balls = getBallCoordinates(fr)
+    balls = getBallsHough(fr)
     green = greenGetter(fr)
     blue = blueGetter(fr)
     yellow = yellowGetter(fr)
 
-
-    for (x, y, w, h) in green:
-        cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
-    for (x, y, w, h) in blue:
-        cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
-    for (x, y, w, h) in yellow:
-        cv2.rectangle(fr, (x, y), (x + w, y + h), (0, 255, 0))
+    for ((x, y), radius) in green:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    for ((x, y), radius) in blue:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    for ((x, y), radius) in yellow:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
     for ((x, y), radius) in balls:
-
         # To see the centroid clearly
 
         cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 255), 5)
-
 
     cv2.imshow("t", fr)
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
     if len(green) > 0 and len(blue) > 0:
-        (x,y,w,h) = green[0]
-        centrumGreen = (x+(w/2),y+(h/2))
-        (x,y,w,h) = blue[0]
-        centrumBlue = (x + (w / 2), y + (h / 2))
-        (x, y, w, h) = yellow[0]
-        centrumYellow = (x + (w / 2), y + (h / 2))
+        ((x, y), _) = green[0]
+        centrumGreen = (x,y)
+        ((x, y), _) = blue[0]
+        centrumBlue = (x,y)
+        ((x, y), _) = yellow[0]
+        centrumYellow = (x,y)
        # print(centrumBlue,centrumGreen)
         robot = Robot(centrumBlue,centrumGreen,centrumYellow)
-        print(robot.driveToBall(robot.findClosestBall(balls)))
+        roboCam = RobotCamera(frames)
+        roboCam.findBalls()
+        roboCamDistance = roboCam.distanceToBall()
+        if roboCamDistance == 0:
+            robot.pickUpBall()
+        elif roboCamDistance > 0:
+            isStraightOn = roboCam.relationToThreshold()
+            if isStraightOn < 0:
+                robot.turnRobot(10)
+            elif isStraightOn > 0:
+                robot.turnRobot(-10)
+            else:
+                driveDistance = roboCamDistance
+                if driveDistance < 10:
+                    driveDistance = 10
+                robot.drive(driveDistance, largeCam=False)
+        elif robot.driveToBall(robot.findClosestBall(balls)):
+            robot.pickUpBall()
 
 """
 for box in getRobotCoordinates(frame):

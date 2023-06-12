@@ -8,10 +8,8 @@ _, fr = frame.read()
 np.save("image", fr)
 cv2.imshow("t", fr)
 """
-
-#
 image = np.load("image.npy")
 
 edges = getFramePoints(image)
-edges[0,1] = 30
+
 print(edges)

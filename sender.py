@@ -2,9 +2,9 @@ from socket import *
 
 
 def connect():
-    serverPort = 12000
+    serverPort = 12001
     serverSocket = socket(AF_INET, SOCK_STREAM)
-    serverSocket.bind(('172.20.10.3', serverPort))
+    serverSocket.bind(('192.168.94.118', serverPort))
 
     serverSocket.listen(1)
     print('The server is ready to receive')
@@ -36,16 +36,17 @@ def turn(angle):
 
 
 def closeClaw():
-    connectionSocket.send('c')
+    connectionSocket.send("c".encode())
+    connectionSocket.recv(1024)
 
 
 def openClaw():
-    connectionSocket.send('oc')
-
+    connectionSocket.send('oc'.encode())
+    connectionSocket.recv(1024)
 
 def deploy():
-    connectionSocket.send('deploy')
+    connectionSocket.send('deploy'.encode())
 
 
 def undeploy():
-    connectionSocket.send('undeploy')
+    connectionSocket.send('undeploy'.encode())
