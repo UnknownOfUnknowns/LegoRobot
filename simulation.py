@@ -23,66 +23,58 @@ edges = getFramePoints(image)
 point = (100, 200)
 
 
-def robotSize():
+def robotSize(angle):
     robot = []
-    x_shift = cos(math.pi / 6)
+    x_shift = cos(angle)
     for x in range(int(point[0] - 10 * x_shift), int(point[0] + 5 * x_shift)):
-        y_shift = (x - point[0]) * sin(pi / 6)
+        y_shift = (x - point[0]) * sin(angle)
         for y in range(int(y_shift + point[1] - 5), int(y_shift + point[1] + 5)):
             robot.append((x, y))
     return robot
 
 
 def robotMoving(coordinates, blue_point, green_point, court):
-    old_one = ()
-    old_two = ()
+
+
     if blue_point[0] > green_point[0]:
         max_x_min_y_coord = max(coordinates, key=lambda coord: (coord[0], coord[1]))
         max_x_max_y_coord = max(coordinates, key=lambda coord: (coord[0], -coord[1]))
-        old_one = max_x_min_y_coord
-        old_two = max_x_max_y_coord
-        moved_coordinates = moveCoordinates(coordinates, max_x_min_y_coord, max_x_max_y_coord, 50)
+        moved_coordinates = moveCoordinates( max_x_min_y_coord, max_x_max_y_coord, 50, pi/6)
     else:
         min_x_min_y_coord = min(coordinates, key=lambda coord: (coord[0], coord[1]))
         min_x_max_y_coord = min(coordinates, key=lambda coord: (coord[0], -coord[1]))
-        old_one = min_x_max_y_coord
-        old_two = min_x_min_y_coord
-        moved_coordinates = moveCoordinates(coordinates, min_x_min_y_coord, min_x_max_y_coord, -50)
+        moved_coordinates = moveCoordinates(min_x_min_y_coord, min_x_max_y_coord, -50, pi/6)
 
-    moved_coordinates.append(old_one)
-    moved_coordinates.append(old_two)
     return not obstacleCollision(moved_coordinates, court)
 
 
-def moveCoordinates(coordinates, coord1, coord2, movement_distance, angle):
+def robotTurning(coordinates, green_point, angle, court):
+    pass
+
+
+
+
+def moveCoordinates(coord1, coord2, movement_distance, angle):
     moved_coordinates = []
 
     x_shift = cos(angle)
-    coord1[0] += x_shift*movement_distance
-    coord2[0] += x_shift*movement_distance
 
     y_shift = sin(angle)
 
-    coord1[1] += y_shift * movement_distance
-    coord2[1] += y_shift * movement_distance
-    moved_coordinates.append(coord1)
-    moved_coordinates.append(coord2)
+    for i in range(1, movement_distance + 1):
+        x1 = int(coord1[0] + x_shift * i)
+        x2 = int(coord2[0] + x_shift * i)
+        for x in range(min(x1, x2), max(x1, x2)+1):
+            y1 = int(coord1[1] + y_shift * i)
+            y2 = int(coord2[1] + y_shift * i)
+            for y in range(min(y1, y2), max(y1, y2)+1):
+                moved_coordinates.append((x, y))
+
     return moved_coordinates
 
 
-
-
-
 def obstacleCollision(coordinates, court):
-    x_values = [coord[0] for coord in coordinates]
-    y_values = [coord[1] for coord in coordinates]
-    min_x = min(x_values)
-    max_x = max(x_values)
-    min_y = min(y_values)
-    max_y = max(y_values)
-
-    for x in range(min_x, max_x + 1):
-        for y in range(min_y, max_y + 1):
+    for (x,y) in coordinates:
             if court[x, y] == 255:
                 return True
     return False
@@ -91,12 +83,12 @@ def obstacleCollision(coordinates, court):
 print(edges)
 
 flipped_image = np.flipud(edges)
-robot_points = robotSize()
+robot_points = robotSize(pi / 6)
 for point in robot_points:
     flipped_image[point[0], point[1]] = 50
 flipped_image[110, 200] = 255
 robotMoving(robot_points, point, (90, 200), flipped_image)
-print(flipped_image, robotSize())
+print(flipped_image, robotSize(pi / 6))
 
 """
         start_x = max(0,x-expansion_x)
