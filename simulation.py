@@ -65,6 +65,7 @@ def robotTurning(coordinates, green_point, angle, court):
     return newCoordinates
 
 
+
 def moveCoordinates(coord1, coord2, movement_distance, angle):
     moved_coordinates = []
 

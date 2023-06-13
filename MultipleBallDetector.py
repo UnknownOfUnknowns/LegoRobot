@@ -91,7 +91,7 @@ while True:
                 else:
                     driveDistance *=1.5
                 robot.drive(driveDistance, largeCam=False)
-        elif robot.driveToBall(robot.findClosestBall(balls)):
+        elif robot.driveToBall(robot.findClosestBall(balls), framePoints):
             robot.pickUpBall()
 
 """

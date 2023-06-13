@@ -2,6 +2,7 @@ from math import atan, sin, cos, sqrt, acos, fabs
 import cv2
 from sender import *
 import math
+from simulation import *
 
 PIXEL_TO_MM_CONVERSION = 1.82
 SMALL_CAM_PIX_TO_MM = 0.1
@@ -71,13 +72,16 @@ class Robot:
         for x in range(int(self.green[0]), int(self.green[0]+100)):
             for y in range(int(self.green[1]-48), int(self.green[1]+48)):
                 robotPoints.append((x,y))
+        return robotTurning(robotPoints, self.green, -self.dir/57.2958, [])
 
-    def driveToBall(self, closestBall):
+    def driveToBall(self, closestBall, court):
         angle = self.calculateAngleToBall(closestBall)
         if fabs(angle) > 5:
+            doesTurnCreateCollision = obstacleCollision(robotTurning(self.generateRobotPoints()))
             turn(1.5*angle)
             return False
         distance = self.calculateDistance(closestBall)
+        robotCanMove = robotMoving(self.generateRobotPoints(), self.blue, self.green, court)
         if distance > 5:
             drive(distance*PIXEL_TO_MM_CONVERSION*0.75)
             return False

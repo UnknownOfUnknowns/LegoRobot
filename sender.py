@@ -1,6 +1,7 @@
 from socket import *
 
 
+
 def connect():
     serverPort = 12001
     serverSocket = socket(AF_INET, SOCK_STREAM)
@@ -21,6 +22,7 @@ def drive(distance):
     direction = 'f'
     if distance < 0:
         direction = 'b'
+
     sentence = 'd' + " " + direction + " " + str(distance)
     connectionSocket.send(sentence.encode())
 
@@ -33,7 +35,6 @@ def turn(angle):
     sentence = 't' + " " + direction + " " + str(angle)
     connectionSocket.send(sentence.encode())
     connectionSocket.recv(1024)
-
 
 def closeClaw():
     connectionSocket.send("c".encode())
