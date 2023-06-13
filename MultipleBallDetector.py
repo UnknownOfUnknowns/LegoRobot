@@ -8,6 +8,7 @@ import numpy as np
 from objectdetectors import *
 from robotCamera import RobotCamera
 from imageFilesReader import getNewestPhoneImage
+from mousecontroller import *
 frame = cv2.VideoCapture(0)
 frame.set(3, 1280)
 frame.set(4, 720)
@@ -37,9 +38,10 @@ def showImage(image):
 
 
 while True:
-
+    phoneImgName = getImageNameFromPhone()
     _, fr = frame.read()
-    frames = [getNewestPhoneImage()]
+    time.sleep(0.5)
+    frames = [getImage(phoneImgName)]
 
     framePoints = getFramePoints(fr)
     balls = getBallsHough(fr)

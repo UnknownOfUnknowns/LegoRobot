@@ -66,6 +66,12 @@ class Robot:
         else:
             return False
 
+    def generateRobotPoints(self):
+        robotPoints = []
+        for x in range(int(self.green[0]), int(self.green[0]+100)):
+            for y in range(int(self.green[1]-48), int(self.green[1]+48)):
+                robotPoints.append((x,y))
+
     def driveToBall(self, closestBall):
         angle = self.calculateAngleToBall(closestBall)
         if fabs(angle) > 5:
