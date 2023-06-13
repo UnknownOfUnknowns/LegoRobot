@@ -1,53 +1,53 @@
 from socket import *
 
 
+class Sender:
+    def __init__(self):
 
-def connect():
-    serverPort = 12001
-    serverSocket = socket(AF_INET, SOCK_STREAM)
-    serverSocket.bind(('192.168.94.118', serverPort))
+        self.connectionSocket = self.connect()
 
-    serverSocket.listen(1)
-    print('The server is ready to receive')
+    def connect(self):
+        serverPort = 12001
+        serverSocket = socket(AF_INET, SOCK_STREAM)
+        serverSocket.bind(('192.168.94.118', serverPort))
 
-    connectionSocket, addr = serverSocket.accept()
-    print("Robot connected")
-    return connectionSocket
+        serverSocket.listen(1)
+        print('The server is ready to receive')
 
+        connectionSocket, addr = serverSocket.accept()
+        print("Robot connected")
+        return connectionSocket
 
-connectionSocket = connect()
+    def send(self, command):
+        try:
+            self.connectionSocket.send(command.encode())
+            self.connectionSocket.recv(1024)
+        except ConnectionAbortedError:
+            self.connectionSocket = self.connect()
+    def drive(self, distance):
+        direction = 'f'
+        if distance < 0:
+            direction = 'b'
 
+        sentence = 'd' + " " + direction + " " + str(distance)
+        self.send(sentence)
 
-def drive(distance):
-    direction = 'f'
-    if distance < 0:
-        direction = 'b'
+    def turn(self, angle):
+        direction = 'l'
+        if angle < 0:
+            angle = -angle
+            direction = 'r'
+        sentence = 't' + " " + direction + " " + str(angle)
+        self.send(sentence)
 
-    sentence = 'd' + " " + direction + " " + str(distance)
-    connectionSocket.send(sentence.encode())
+    def closeClaw(self):
+        self.send("c")
 
+    def openClaw(self):
+        self.send("oc")
 
-def turn(angle):
-    direction = 'l'
-    if angle < 0:
-        angle = -angle
-        direction = 'r'
-    sentence = 't' + " " + direction + " " + str(angle)
-    connectionSocket.send(sentence.encode())
-    connectionSocket.recv(1024)
+    def deploy(self):
+        self.send("deploy")
 
-def closeClaw():
-    connectionSocket.send("c".encode())
-    connectionSocket.recv(1024)
-
-
-def openClaw():
-    connectionSocket.send('oc'.encode())
-    connectionSocket.recv(1024)
-
-def deploy():
-    connectionSocket.send('deploy'.encode())
-
-
-def undeploy():
-    connectionSocket.send('undeploy'.encode())
+    def undeploy(self):
+        self.send("undeploy")
