@@ -1,11 +1,10 @@
 import cv2
 import matplotlib.pyplot as plt
 import time
-cap = cv2.VideoCapture(0)
 
 
-_, fr = cap.read()
+frame = cv2.imread("collisionSide.png")
 
-cv2.imwrite("collisionSide.png",fr)
+
 
 

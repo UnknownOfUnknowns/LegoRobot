@@ -33,7 +33,7 @@ while(True):
             for y in range(int(green[1]-h), int(green[1]+h)):
                 robotPoints.append((x,y))
         #minus is used in front of angle to compensate for different coordinate set
-        turnedPoints = robotTurning(robotPoints, green, -turn*pi/50, [])
+        turnedPoints = robotTurning(robotPoints, green, -turn*pi/50)
         for x, y in turnedPoints:
             cv2.circle(frame, (x, y), 1, (0, 0, 255))
         hits = False

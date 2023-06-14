@@ -6,6 +6,7 @@ from objectdetectors import *
 from math import *
 import matplotlib.pyplot as plt
 
+
 """
 frame = cv2.VideoCapture(0)
 
@@ -54,7 +55,7 @@ def angleBetweenPoints(p1, p2):
     return atan((p2[1] - p1[1]) / xGrowth)
 
 
-def robotTurning(coordinates, green_point, angle, court):
+def robotTurning(coordinates, green_point, angle):
     green_x, green_y = green_point
     newCoordinates = []
     for coordinate in coordinates:
@@ -87,7 +88,7 @@ def moveCoordinates(coord1, coord2, movement_distance, angle):
 
 def obstacleCollision(coordinates, court):
     for (x, y) in coordinates:
-        if court[x, y] == 255:
+        if court[y, x] == 255:
             return True
     return False
 

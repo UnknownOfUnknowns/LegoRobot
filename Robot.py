@@ -6,15 +6,22 @@ from simulation import *
 
 PIXEL_TO_MM_CONVERSION = 1.82
 SMALL_CAM_PIX_TO_MM = 0.1
+
+
+class CollisionSimulatedException(Exception):
+    pass
+
+
 class Robot:
 
-    def __init__(self, blue, green, yellow):
+    def __init__(self, blue, green, yellow, sender):
         self.blue = blue
-        self.frontPoint = ((blue[0]+yellow[0])/2, (blue[1]+yellow[1])/2)
+        self.frontPoint = ((blue[0] + yellow[0]) / 2, (blue[1] + yellow[1]) / 2)
         self.green = green
         self.dir = self.direction()
         self.front = (self.frontPoint[0] + 30 * cos(self.dir / 57.2958), (self.frontPoint[1] - 30 * sin(self.dir / 57.2958)))
         self.yellow = yellow
+        self.sender = sender
 
     def direction(self):
         if self.frontPoint[0] - self.green[0] == 0:
@@ -69,21 +76,23 @@ class Robot:
 
     def generateRobotPoints(self):
         robotPoints = []
-        for x in range(int(self.green[0]), int(self.green[0]+100)):
-            for y in range(int(self.green[1]-48), int(self.green[1]+48)):
-                robotPoints.append((x,y))
-        return robotTurning(robotPoints, self.green, -self.dir/57.2958, [])
+        for x in range(int(self.green[0]), int(self.green[0] + 100)):
+            for y in range(int(self.green[1] - 48), int(self.green[1] + 48)):
+                robotPoints.append((x, y))
+        return robotTurning(robotPoints, self.green, -self.dir / 57.2958)
 
     def driveToBall(self, closestBall, court):
         angle = self.calculateAngleToBall(closestBall)
         if fabs(angle) > 5:
-            doesTurnCreateCollision = obstacleCollision(robotTurning(self.generateRobotPoints()))
-            turn(1.5*angle)
+            if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
+                raise CollisionSimulatedException
+            self.sender.turn(1.5 * angle)
             return False
         distance = self.calculateDistance(closestBall)
-        robotCanMove = robotMoving(self.generateRobotPoints(), self.blue, self.green, court)
+        if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):
+            raise CollisionSimulatedException
         if distance > 5:
-            drive(distance*PIXEL_TO_MM_CONVERSION*0.75)
+            self.sender.drive(distance * PIXEL_TO_MM_CONVERSION * 0.75)
             return False
         return True
 
@@ -96,11 +105,12 @@ class Robot:
             frame[int(self.front[0]) + x, int(self.front[1]) + y] = 100
         print(frame)
 
-    def drive(self, distance, largeCam = True):
-        drive(distance * (PIXEL_TO_MM_CONVERSION if largeCam else SMALL_CAM_PIX_TO_MM) * 0.9)
+    def drive(self, distance, largeCam=True):
+        self.sender.drive(distance * (PIXEL_TO_MM_CONVERSION if largeCam else SMALL_CAM_PIX_TO_MM) * 0.9)
+
     def pickUpBall(self):
-        closeClaw()
-        openClaw()
+        self.sender.closeClaw()
+        self.sender.openClaw()
 
     def turnRobot(self, angle):
-        turn(angle)
+        self.sender.turn(angle)

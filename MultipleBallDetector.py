@@ -9,9 +9,14 @@ from objectdetectors import *
 from robotCamera import RobotCamera
 from imageFilesReader import getNewestPhoneImage
 from mousecontroller import *
+from driveController import *
+
+
+sender = Sender()
 frame = cv2.VideoCapture(0)
 frame.set(3, 1280)
 frame.set(4, 720)
+
 
 # frame = cv2.resize(frame, (960, 540))
 
@@ -72,27 +77,13 @@ while True:
         ((x, y), _) = yellow[0]
         centrumYellow = (x,y)
        # print(centrumBlue,centrumGreen)
-        robot = Robot(centrumBlue,centrumGreen,centrumYellow)
+        robot = Robot(centrumBlue,centrumGreen,centrumYellow, sender)
         roboCam = RobotCamera(frames)
-        roboCam.findBalls()
-        roboCamDistance = roboCam.distanceToBall()
-        if roboCamDistance == 0:
-            robot.pickUpBall()
-        elif roboCamDistance > 0:
-            isStraightOn = roboCam.relationToThreshold()
-            if isStraightOn < 0:
-                robot.turnRobot(10)
-            elif isStraightOn > 0:
-                robot.turnRobot(-10)
-            else:
-                driveDistance = roboCamDistance
-                if driveDistance < 50:
-                    driveDistance = 50
-                else:
-                    driveDistance *=1.5
-                robot.drive(driveDistance, largeCam=False)
-        elif robot.driveToBall(robot.findClosestBall(balls), framePoints):
-            robot.pickUpBall()
+        drive(robot, roboCam, balls, framePoints)
+
+
+
+
 
 """
 for box in getRobotCoordinates(frame):
