@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import time
 
 
 # A required callback method that goes into the trackbar function.
@@ -9,7 +8,7 @@ def nothing(x):
 
 
 # Initializing the webcam feed.
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -33,7 +32,6 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-
     # Convert the BGR image to HSV image.
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 

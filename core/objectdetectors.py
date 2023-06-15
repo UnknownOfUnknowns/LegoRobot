@@ -9,6 +9,14 @@ def getFramePoints(image):
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     return mask
 
+def getFramePointsPhone(image):
+    blurred = cv2.GaussianBlur(image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    lowerBound = (0, 200, 149)
+    upperBound = (179, 255, 255)
+    mask = cv2.inRange(hsv, lowerBound, upperBound)
+    return mask
+
 
 def getBallsHough(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

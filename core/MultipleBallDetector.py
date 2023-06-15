@@ -1,19 +1,13 @@
-import time
-
-import cv2
 from Robot import *
 from sender import *
-import imutils
-import numpy as np
 from objectdetectors import *
 from robotCamera import RobotCamera
-from imageFilesReader import getNewestPhoneImage
-from mousecontroller import *
-from driveController import *
-
+from util.mousecontroller import *
+from core.driveController import *
+from ObstacleRecoveryStrategies import DeliverToSmallGoalStrategy
 
 sender = Sender()
-frame = cv2.VideoCapture(0)
+frame = cv2.VideoCapture(2)
 frame.set(3, 1280)
 frame.set(4, 720)
 
@@ -40,11 +34,12 @@ def showImage(image):
 
 # court_box = court_box[0]
 # cropped = frame[court_box[1]:court_box[1]+court_box[3], court_box[0]:court_box[0]+court_box[2]]
-
+currentStrategy = []
 
 while True:
-    phoneImgName = getImageNameFromPhone()
+    phoneImgName = getNewestImageName() #getImageNameFromPhone()
     _, fr = frame.read()
+    #fr = cv2.imread("collisionSide.png")
     time.sleep(0.5)
     frames = [getImage(phoneImgName)]
 
@@ -69,7 +64,7 @@ while True:
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-    if len(green) > 0 and len(blue) > 0 and len(balls) > 0:
+    if len(green) > 0 and len(blue) > 0:
         ((x, y), _) = green[0]
         centrumGreen = (x,y)
         ((x, y), _) = blue[0]
@@ -78,8 +73,43 @@ while True:
         centrumYellow = (x,y)
        # print(centrumBlue,centrumGreen)
         robot = Robot(centrumBlue,centrumGreen,centrumYellow, sender)
+
+
+        if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint, currentStrategy[0][1]) < 5:
+            currentStrategy.pop(0)
+
+        if len(currentStrategy) > 0:
+            order = currentStrategy[0]
+            if order[0] == OrderType.TARGET:
+                robot.driveToBall(order[1], framePoints)
+                continue
         roboCam = RobotCamera(frames)
-        drive(robot, roboCam, balls, framePoints)
+
+        roboCam.findBalls()
+
+        if len(balls) == 0 and roboCam.detectedBall is None:
+            currentStrategy = DeliverToSmallGoalStrategy().createStrategy()
+            continue
+
+        roboCamDistance = roboCam.distanceToBall()
+        if roboCamDistance == 0:
+            robot.pickUpBall()
+        elif roboCamDistance > 0:
+            isStraightOn = roboCam.relationToThreshold()
+            if isStraightOn < 0:
+                robot.turnRobot(10)
+            elif isStraightOn > 0:
+                robot.turnRobot(-10)
+            else:
+                driveDistance = roboCamDistance
+                if driveDistance < 50:
+                    driveDistance = 50
+                else:
+                    driveDistance *= 1.5
+                robot.drive(driveDistance, largeCam=False)
+        else:
+            closestBall = robot.findClosestBall(balls)
+            robot.driveToBall(closestBall, framePoints)
 
 
 

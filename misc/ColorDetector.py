@@ -1,11 +1,4 @@
-from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import ColorSensor, UltrasonicSensor
-from pybricks.iodevices import Ev3devSensor
-from pybricks.parameters import Color, Port
-from pybricks.tools import wait
-
-import MultipleBallDetector as mbd
-
+from core import MultipleBallDetector as mbd
 
 import cv2
 
@@ -25,7 +18,7 @@ while True:
 
         # To see the centroid clearly
         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
-        cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
+        cv2.imwrite("../resources/circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
         cv2.circle(frame, (int(x), int(y)), 5, (0, 0, 255), -1)
 
     cv2.imshow('court cam', frame)

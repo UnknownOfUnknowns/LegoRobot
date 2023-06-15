@@ -42,3 +42,8 @@ class StandardStrategy:
         commands.append((OrderType.TARGET, targetQuadrant))
 
         return commands
+
+
+class DeliverToSmallGoalStrategy:
+    def createStrategy(self):
+        return [(OrderType.TARGET, (145, 369)), (OrderType.TARGET, (526, 369))]

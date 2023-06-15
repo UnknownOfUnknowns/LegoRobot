@@ -1,5 +1,4 @@
-import cv2
-from objectdetectors import *
+from core.objectdetectors import *
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 1280)

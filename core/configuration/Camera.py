@@ -1,6 +1,23 @@
 import cv2
 import imutils
-vid = cv2.VideoCapture(0)
+vid = cv2.VideoCapture(2)
+
+vid.set(3, 1280)
+vid.set(4, 720)
+
+def nothing(x):
+    pass
+
+cv2.namedWindow("Trackbars")
+
+# Now create 6 trackbars that will control the lower and upper range of
+# H,S and V channels. The Arguments are like this: Name of trackbar,
+# window name, range,callback function. For Hue the range is 0-179 and
+# for S,V its 0-255.
+cv2.createTrackbar("x1", "Trackbars", 0, 300, nothing)
+cv2.createTrackbar("x2", "Trackbars", 0, 700, nothing)
+cv2.createTrackbar("y1", "Trackbars", 0, 500, nothing)
+cv2.createTrackbar("y2", "Trackbars", 179, 500, nothing)
 
 while (True):
     def blueGetter(image):
@@ -23,11 +40,12 @@ while (True):
     # Capture the video frame
     # by frame
     ret, frame = vid.read()
-    blue = blueGetter(frame)
-    for ((x, y), radius) in blue:
-        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    blue = [(cv2.getTrackbarPos("x1", "Trackbars"), cv2.getTrackbarPos("y1", "Trackbars")),
+            (cv2.getTrackbarPos("x2", "Trackbars"), cv2.getTrackbarPos("y2", "Trackbars"))]#blueGetter(frame)
+    for ((x, y)) in blue:
+        cv2.circle(frame, (int(x), int(y)), int(10), (0, 255, 0), 1)
     # Display the resulting frame
-    cv2.imshow('frame', frame)
+    cv2.imshow('Trackbars', frame)
 
     # the 'q' button is set as the
     # quitting button you may use any

@@ -22,7 +22,9 @@ class Sender:
         try:
             self.connectionSocket.send(command.encode())
             self.connectionSocket.recv(1024)
-        except ConnectionAbortedError:
+        except ConnectionAbortedError as e:
+            print(e)
+            print("con err")
             self.connectionSocket = self.connect()
     def drive(self, distance):
         direction = 'f'

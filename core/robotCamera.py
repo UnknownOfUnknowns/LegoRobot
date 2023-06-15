@@ -1,10 +1,11 @@
-import cv2
-from objectdetectors import getBallsHough
+from core.objectdetectors import getBallsHough, getFramePointsPhone
+
+"""
 frame = cv2.VideoCapture(3)
 #fhigh = cv2.VideoCapture(0)
 frame.set(3, 480)
 frame.set(4, 320)
-
+"""
 
 
 class RobotCamera:
@@ -13,15 +14,14 @@ class RobotCamera:
         self.images = images
         self.detectedBall = None
 
-        self.middle = 1920/2
-        self.threshold = (self.middle-655)/2
-
+        self.middle = 1920 / 2
+        self.threshold = (self.middle - 655) / 2
 
     def relationToThreshold(self):
         if self.detectedBall is None:
             return 0
 
-        if self.detectedBall[0][0] < (self.middle-self.threshold):
+        if self.detectedBall[0][0] < (self.middle - self.threshold):
             return -1
         if self.detectedBall[0][0] > (self.middle + self.threshold):
             return 1
@@ -39,6 +39,26 @@ class RobotCamera:
         if self.detectedBall is None:
             return -1
         return max(0, 714 - self.detectedBall[0][1])
+
+    def inPositionToOpen(self):
+        image = self.images[0]
+        framePoints = getFramePointsPhone(image)
+        hitCount = 0
+        for x in [300, 390]:
+            for point in framePoints[x]:
+                if point == 255:
+                    hitCount += 1
+                    break
+        return hitCount == 2
+
+    def findFirstRedEdge(self):
+        image = self.images[0]
+        framePoints = getFramePointsPhone(image)
+        for x in range(0, len(framePoints)):
+                if framePoints[x, 960] == 255:
+                    return x
+        return -1
+
 """
 while True:
     #_, frh = fhigh.read()

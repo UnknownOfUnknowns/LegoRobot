@@ -1,6 +1,5 @@
-import cv2
-from simulation import *
-from objectdetectors import *
+from core.simulation import *
+from core.objectdetectors import *
 
 cam = cv2.VideoCapture(0)
 

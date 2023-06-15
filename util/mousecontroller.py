@@ -1,10 +1,11 @@
 import mouse
 import time
-from imageFilesReader import *
-import matplotlib.pyplot as plt
+from util.imageFilesReader import *
+
+
 # 928,787
 def getImageNameFromPhone():
-    time.sleep(2)
+    time.sleep(0.5)
     mouse.move(928, 787)
     oldImage = getNewestImageName()
     mouse.click('left')

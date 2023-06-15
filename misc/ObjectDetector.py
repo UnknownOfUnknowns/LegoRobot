@@ -2,7 +2,7 @@ import cv2
 
 
 imcap = cv2.VideoCapture(1)
-image = cv2.imread("coverImg.jfif")
+image = cv2.imread("../coverImg.jfif")
 faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
 eyeCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye_tree_eyeglasses.xml")

@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-image = cv2.imread("full_court.jpg", cv2.IMREAD_COLOR)
+image = cv2.imread("../resources/full_court.jpg", cv2.IMREAD_COLOR)
 
 """
 

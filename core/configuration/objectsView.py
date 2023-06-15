@@ -1,4 +1,4 @@
-from objectdetectors import *
+from core.objectdetectors import *
 import cv2
 
 frame = cv2.VideoCapture(0)

@@ -1,11 +1,5 @@
-import math
-
-import cv2
-import numpy as np
-from objectdetectors import *
+from core.objectdetectors import *
 from math import *
-import matplotlib.pyplot as plt
-
 
 """
 frame = cv2.VideoCapture(0)
@@ -16,7 +10,7 @@ cv2.imshow("t", fr)
 """
 
 #
-image = np.load("image.npy")
+image = np.load("../resources/image.npy")
 
 edges = getFramePoints(image)
 

@@ -34,7 +34,7 @@ while True:
         # To see the centroid clearly
 
         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
-        cv2.imwrite("circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
+        cv2.imwrite("../resources/circled_frame.png", cv2.resize(frame, (int(height / 2), int(width / 2))))
         cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
     cv2.imshow("Frame", frame)

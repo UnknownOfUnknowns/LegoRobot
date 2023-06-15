@@ -84,13 +84,13 @@ class Robot:
     def driveToBall(self, closestBall, court):
         angle = self.calculateAngleToBall(closestBall)
         if fabs(angle) > 5:
-            if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
-                raise CollisionSimulatedException
+            #if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
+            #    raise CollisionSimulatedException
             self.sender.turn(1.5 * angle)
             return False
         distance = self.calculateDistance(closestBall)
-        if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):
-            raise CollisionSimulatedException
+        #if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):
+            #raise CollisionSimulatedException
         if distance > 5:
             self.sender.drive(distance * PIXEL_TO_MM_CONVERSION * 0.75)
             return False
