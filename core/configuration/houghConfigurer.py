@@ -1,6 +1,6 @@
 from core.objectdetectors import *
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(4)
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -15,6 +15,7 @@ cv2.createTrackbar("P1", "Trackbars", 10, 200, nothing)
 cv2.createTrackbar("P2", "Trackbars", 10, 100, nothing)
 cv2.createTrackbar("MIN", "Trackbars", 10, 100, nothing)
 cv2.createTrackbar("MAX", "Trackbars", 10, 100, nothing)
+
 
 while True:
 
