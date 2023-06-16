@@ -1,5 +1,8 @@
 from math import atan, sin, cos, sqrt, acos, fabs
 import cv2
+
+
+from core.ObstacleRecoveryStrategies import OrderType
 from sender import *
 import math
 from simulation import *
@@ -46,6 +49,7 @@ class Robot:
         return closest_ball
 
     def calculateAngleToBall(self, closestBall):
+        return angleBetweenPoints(self.green, closestBall) * 57.2958
         robotVector = (self.frontPoint[0] - self.green[0], (self.frontPoint[1] - self.green[1]))
         ballVector = (closestBall[0] - self.green[0], (closestBall[1] - self.green[1]))
         scalarProduct = robotVector[0] * ballVector[0] + robotVector[1] * ballVector[1]
@@ -114,3 +118,8 @@ class Robot:
 
     def turnRobot(self, angle):
         self.sender.turn(angle)
+
+    def executeStrategyElement(self, command, framePoints):
+        if command[0].name == OrderType.TARGET.name:
+            self.driveToBall(command[1], framePoints)
+

@@ -1,6 +1,6 @@
 from math import sqrt, cos, sin
 from enum import Enum
-
+from configuration.configLoader import current_config
 quadrants = [(1, (150, 100)), (2, (500, 100)), (3, (150, 370)), (4, (500, 370))]
 
 
@@ -46,4 +46,4 @@ class StandardStrategy:
 
 class DeliverToSmallGoalStrategy:
     def createStrategy(self):
-        return [(OrderType.TARGET, (145, 369)), (OrderType.TARGET, (526, 369))]
+        return [(OrderType.TARGET, current_config["goal 2"]), (OrderType.TARGET, current_config["goal 1"])]

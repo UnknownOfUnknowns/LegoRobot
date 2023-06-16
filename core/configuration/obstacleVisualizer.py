@@ -15,7 +15,8 @@ cv2.createTrackbar("width front","Simulator", 10, 100, nothing)
 cv2.createTrackbar("height","Simulator",10, 100, nothing)
 
 while(True):
-    ret,frame = cam.read()
+    #ret,frame = cam.read()
+    frame = cv2.imread("../../resources/collisionSide.png")
     turn = cv2.getTrackbarPos("turn", "Simulator")
     green = greenGetter(frame)
     blue = blueGetter(frame)
@@ -33,6 +34,8 @@ while(True):
                 robotPoints.append((x,y))
         #minus is used in front of angle to compensate for different coordinate set
         turnedPoints = robotTurning(robotPoints, green, -turn*pi/50)
+        for x,y in robotPoints:
+            cv2.circle(frame, (x,y), 1, (255,0,0))
         for x, y in turnedPoints:
             cv2.circle(frame, (x, y), 1, (0, 0, 255))
         hits = False

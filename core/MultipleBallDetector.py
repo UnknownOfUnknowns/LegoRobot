@@ -7,7 +7,7 @@ from core.driveController import *
 from ObstacleRecoveryStrategies import DeliverToSmallGoalStrategy
 
 sender = Sender()
-frame = cv2.VideoCapture(2)
+frame = cv2.VideoCapture(4)
 frame.set(3, 1280)
 frame.set(4, 720)
 
@@ -26,20 +26,18 @@ def showImage(image):
     cv2.destroyAllWindows()
 
 
-
-
 # court_box =  mapOutFrame(frame)
 # for box in court_box:
 #    cv2.rectangle(frame, box, (0, 0, 255), 2)
 
 # court_box = court_box[0]
 # cropped = frame[court_box[1]:court_box[1]+court_box[3], court_box[0]:court_box[0]+court_box[2]]
-currentStrategy = []
+currentStrategy = DeliverToSmallGoalStrategy().createStrategy()
 
 while True:
-    phoneImgName = getNewestImageName() #getImageNameFromPhone()
+    phoneImgName = getImageNameFromPhone()
     _, fr = frame.read()
-    #fr = cv2.imread("collisionSide.png")
+    # fr = cv2.imread("collisionSide.png")
     time.sleep(0.5)
     frames = [getImage(phoneImgName)]
 
@@ -66,23 +64,22 @@ while True:
 
     if len(green) > 0 and len(blue) > 0:
         ((x, y), _) = green[0]
-        centrumGreen = (x,y)
+        centrumGreen = (x, y)
         ((x, y), _) = blue[0]
-        centrumBlue = (x,y)
+        centrumBlue = (x, y)
         ((x, y), _) = yellow[0]
-        centrumYellow = (x,y)
-       # print(centrumBlue,centrumGreen)
-        robot = Robot(centrumBlue,centrumGreen,centrumYellow, sender)
+        centrumYellow = (x, y)
+        # print(centrumBlue,centrumGreen)
+        robot = Robot(centrumBlue, centrumGreen, centrumYellow, sender)
 
-
-        if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint, currentStrategy[0][1]) < 5:
+        if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint,currentStrategy[0][1]) < 100:
             currentStrategy.pop(0)
 
         if len(currentStrategy) > 0:
             order = currentStrategy[0]
-            if order[0] == OrderType.TARGET:
-                robot.driveToBall(order[1], framePoints)
-                continue
+            robot.executeStrategyElement(order, framePoints)
+            continue
+
         roboCam = RobotCamera(frames)
 
         roboCam.findBalls()
@@ -110,10 +107,6 @@ while True:
         else:
             closestBall = robot.findClosestBall(balls)
             robot.driveToBall(closestBall, framePoints)
-
-
-
-
 
 """
 for box in getRobotCoordinates(frame):

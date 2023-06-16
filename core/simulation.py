@@ -10,10 +10,11 @@ cv2.imshow("t", fr)
 """
 
 #
+"""
 image = np.load("../resources/image.npy")
 
 edges = getFramePoints(image)
-
+"""
 # edges[477,3] = 200
 
 point = (100, 200)
@@ -44,9 +45,17 @@ def robotMoving(coordinates, blue_point, green_point, court):
 
 def angleBetweenPoints(p1, p2):
     xGrowth = p2[0] - p1[0]
-    if xGrowth == 0:
+    yGrowth= p2[1] - p1[1]
+    if xGrowth > 0:
+        return atan(yGrowth / xGrowth)
+    if xGrowth == 0 and yGrowth > 0:
         return pi / 2
-    return atan((p2[1] - p1[1]) / xGrowth)
+    if xGrowth < 0 and yGrowth >= 0:
+        return atan(yGrowth / xGrowth)+pi
+    if xGrowth == 0 and yGrowth < 0:
+        return -pi/2
+    if xGrowth < 0 and yGrowth < 0:
+        return atan(yGrowth / xGrowth)-pi
 
 
 def robotTurning(coordinates, green_point, angle):
@@ -54,9 +63,11 @@ def robotTurning(coordinates, green_point, angle):
     newCoordinates = []
     for coordinate in coordinates:
         x, y = coordinate
-        newAngle = angleBetweenPoints(green_point, coordinate) + angle
+        existingAngle = angleBetweenPoints(green_point, coordinate)
+        newAngle =  -existingAngle + angle
         dist = sqrt((x - green_x) ** 2 + (y - green_y) ** 2)
-        newCoordinates.append((int(green_x + cos(newAngle) * dist), int(green_y + sin(newAngle) * dist)))
+        newCoordinate = (int(green_x + cos(newAngle) * dist), int(green_y + sin(newAngle) * dist))
+        newCoordinates.append(newCoordinate)
     return newCoordinates
 
 

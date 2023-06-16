@@ -9,7 +9,7 @@ class Sender:
     def connect(self):
         serverPort = 12001
         serverSocket = socket(AF_INET, SOCK_STREAM)
-        serverSocket.bind(('192.168.94.118', serverPort))
+        serverSocket.bind(('172.20.10.8', serverPort))
 
         serverSocket.listen(1)
         print('The server is ready to receive')
