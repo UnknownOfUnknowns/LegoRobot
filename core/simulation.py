@@ -45,7 +45,7 @@ def robotMoving(coordinates, blue_point, green_point, court):
 
 def angleBetweenPoints(p1, p2):
     xGrowth = p2[0] - p1[0]
-    yGrowth= p2[1] - p1[1]
+    yGrowth = p2[1] - p1[1]
     if xGrowth > 0:
         return atan(yGrowth / xGrowth)
     if xGrowth == 0 and yGrowth > 0:

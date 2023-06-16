@@ -49,7 +49,27 @@ class Robot:
         return closest_ball
 
     def calculateAngleToBall(self, closestBall):
-        return angleBetweenPoints(self.green, closestBall) * 57.2958
+        angle = -angleBetweenPoints(self.green, closestBall) * 57.2958
+        robotAngle = angleBetweenPoints(self.green, self.frontPoint)
+        if robotAngle is not None:
+            robotAngle = -robotAngle * 57
+
+            if self.frontPoint[0] < self.green[0] and closestBall[1] > self.green[1]:
+                angle = 180 + angle
+                robotAngle = 180 + robotAngle
+                angle = angle - robotAngle
+            elif self.frontPoint[0] < self.green[0] and closestBall[1] < self.green[1] and self.frontPoint[1] > self.green[1]:
+                angle = (180 - angle)
+                robotAngle = (180 + robotAngle)
+                angle = -(angle + robotAngle)
+            elif self.frontPoint[0] < self.green[0] and closestBall[1] < self.green[1]:
+                angle = -(180 - angle)
+                robotAngle = -(180 - robotAngle)
+                angle = angle - robotAngle
+            else:
+                angle = angle - robotAngle
+
+            return angle
         robotVector = (self.frontPoint[0] - self.green[0], (self.frontPoint[1] - self.green[1]))
         ballVector = (closestBall[0] - self.green[0], (closestBall[1] - self.green[1]))
         scalarProduct = robotVector[0] * ballVector[0] + robotVector[1] * ballVector[1]
