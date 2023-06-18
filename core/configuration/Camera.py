@@ -61,12 +61,13 @@ while (True):
     robotAngle = angleBetweenPoints(green[0], blue[0])
     if robotAngle is not None:
         robotAngle = -robotAngle*57
-
-        if blue[0][0] < green[0][0] and red[0][1] > green[0][1]:
+        if blue[0][0] < green[0][0] and red[0][1] > green[0][1] and blue[0][1] <= green[0][1]:
+            angle = abs(180-robotAngle) + abs(angle+180)
+        elif blue[0][0] < green[0][0] and red[0][1] > green[0][1]:
             angle = 180+angle
             robotAngle = 180 + robotAngle
             angle = angle - robotAngle
-        elif blue[0][0] < green[0][0] and red[0][1] < green[0][1] and blue[0][1] > green[0][1]:
+        elif blue[0][0] < green[0][0] and red[0][1] < green[0][1] and blue[0][1] >= green[0][1]:
             angle = (180-angle)
             robotAngle = (180+robotAngle)
             angle = -(angle+robotAngle)

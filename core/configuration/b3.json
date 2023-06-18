@@ -1,0 +1,56 @@
+{
+    "goal 1": [
+        0,
+        0
+    ],
+    "goal 2": [
+        0,
+        0
+    ],
+    "quadrant 1": [
+        0,
+        0
+    ],
+    "quadrant 2": [
+        0,
+        0
+    ],
+    "quadrant 3": [
+        0,
+        0
+    ],
+    "quadrant 4": [
+        0,
+        0
+    ],
+    "blue lower": [
+        0,
+        0,
+        0
+    ],
+    "blue upper": [
+        179,
+        255,
+        255
+    ],
+    "yellow lower": [
+        0,
+        0,
+        0
+    ],
+    "yellow upper": [
+        179,
+        255,
+        255
+    ],
+    "green lower": [
+        0,
+        0,
+        0
+    ],
+    "green upper": [
+        179,
+        255,
+        255
+    ]
+}

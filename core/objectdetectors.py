@@ -1,6 +1,7 @@
 import cv2
 import imutils
 import numpy as np
+from core.configuration.configLoader import current_config
 def getFramePoints(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -116,27 +117,29 @@ def mapOutFrame(image):
 def blueGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (0, 195, 190)
-    upperBound = (179, 255, 255)
+    lowerBound = current_config["blue lower"]
+    upperBound = current_config["blue upper"]
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
-    rectangles = []
+    rectangle = ((0,0), 0)
     for points in cnts:
         rect = cv2.minEnclosingCircle(points)
         ((x, y), r) = rect
-        if r > 3:
-            rectangles.append(rect)
+        if r > rectangle[1]:
+            rectangle = rect
 
-    return rectangles
+    return [rectangle]
 
 
 def yellowGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (21, 42, 156)
-    upperBound = (69, 129, 255)
+    #lowerBound = (21, 42, 156)
+    #upperBound = (69, 129, 255)
+    lowerBound = current_config["yellow lower"]
+    upperBound = current_config["yellow upper"]
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -146,14 +149,39 @@ def yellowGetter(image):
         rect = cv2.minEnclosingCircle(points)
         rectangles.append(rect)
 
-    return rectangles
-
+    rectangles.sort(key= lambda x : x[1])
+    if len(rectangles) > 0:
+        return [rectangles[-1]]
+    return []
 
 def greenGetter(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (82, 170, 85)
-    upperBound = (97, 255, 149)
+    #lowerBound = (82, 170, 85)
+    #upperBound = (97, 255, 149)
+
+    lowerBound = current_config["green lower"]
+    upperBound = current_config["green upper"]
+    mask = cv2.inRange(hsv, lowerBound, upperBound)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    rectangle = ((0,0), 0)
+    for points in cnts:
+        rect = cv2.minEnclosingCircle(points)
+        ((x, y), r) = rect
+        if r > rectangle[1]:
+            rectangle = rect
+
+    return [rectangle]
+
+def greenGetterRobot(image):
+    blurred = cv2.GaussianBlur(image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    #lowerBound = (82, 170, 85)
+    #upperBound = (97, 255, 149)
+    lowerBound = (29, 97, 51)
+    upperBound = (93, 150, 186)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -162,5 +190,4 @@ def greenGetter(image):
     for points in cnts:
         rect = cv2.minEnclosingCircle(points)
         rectangles.append(rect)
-
     return rectangles

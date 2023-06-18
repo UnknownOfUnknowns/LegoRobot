@@ -1,4 +1,4 @@
-from core.objectdetectors import *
+
 from math import *
 
 """

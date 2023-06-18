@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from configLoader import saveConfig
-
+from util.imageFilesReader import getNewestPhoneImage
 cap = cv2.VideoCapture(4)
 cap.set(3, 1280)
 cap.set(4, 720)
@@ -13,7 +13,6 @@ def nothing(x):
 
 def createBarsForColorFrame(windowName):
     cv2.namedWindow(windowName)
-
     cv2.createTrackbar("L - H", windowName, 0, 179, nothing)
     cv2.createTrackbar("L - S", windowName, 0, 255, nothing)
     cv2.createTrackbar("L - V", windowName, 0, 255, nothing)
@@ -35,6 +34,8 @@ def pointConfigActions(frame, windowName, pointCount):
         y = cv2.getTrackbarPos("y" + str(n), windowName)
 
         cv2.circle(frame, (int(x), int(y)), int(10), (0, 255, 0), 2)
+    scale = (640, 360)
+    frame = cv2.resize(frame, scale)
     return frame
 
 def pointGetValuesToSave(windowName, pointCount):
@@ -65,7 +66,11 @@ def colorConfigActions(frame, windowName):
 
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
-    stacked = np.hstack((mask_3, frame, res))
+    scale = (640, 360)
+    mask_3 = cv2.resize(mask_3, scale)
+    res = cv2.resize(res, scale)
+
+    stacked = np.hstack((mask_3, cv2.resize(frame, scale), res))
     return stacked
 
 
@@ -172,8 +177,9 @@ saveMode = False
 newConfig = {}
 while True:
     ret, frame = cap.read()
-
+    #frame = getNewestPhoneImage()
     frame = currentAction(frame)
+
     cv2.imshow(windowName, frame)
 
     key = cv2.waitKey(1)

@@ -32,7 +32,7 @@ def showImage(image):
 
 # court_box = court_box[0]
 # cropped = frame[court_box[1]:court_box[1]+court_box[3], court_box[0]:court_box[0]+court_box[2]]
-currentStrategy = DeliverToSmallGoalStrategy().createStrategy()
+currentStrategy = []#DeliverToSmallGoalStrategy().createStrategy()
 
 while True:
     phoneImgName = getImageNameFromPhone()

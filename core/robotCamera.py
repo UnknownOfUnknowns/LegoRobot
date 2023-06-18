@@ -1,5 +1,5 @@
 from core.objectdetectors import getBallsHough, getFramePointsPhone
-
+from core.configuration.configLoader import robot_cam_config
 """
 frame = cv2.VideoCapture(3)
 #fhigh = cv2.VideoCapture(0)
@@ -58,7 +58,19 @@ class RobotCamera:
                 if framePoints[x, 960] == 255:
                     return x
         return -1
+    def isStraightOnForOpenClaw(self, greenPoints):
+        x, _ = greenPoints[0]
+        if x < robot_cam_config["left left"]:
+            return 1
+        if x >  robot_cam_config["left right"]:
+            return -1
+        x, y = greenPoints[1]
+        if x <  robot_cam_config["right left"]:
+            return 1
+        if x >  robot_cam_config["right right"]:
+            return -1
 
+        return 0
 """
 while True:
     #_, frh = fhigh.read()

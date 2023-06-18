@@ -1,11 +1,10 @@
 from math import atan, sin, cos, sqrt, acos, fabs
-import cv2
 
 
 from core.ObstacleRecoveryStrategies import OrderType
-from sender import *
+
 import math
-from simulation import *
+from core.simulation import *
 
 PIXEL_TO_MM_CONVERSION = 1.82
 SMALL_CAM_PIX_TO_MM = 0.1
@@ -53,12 +52,13 @@ class Robot:
         robotAngle = angleBetweenPoints(self.green, self.frontPoint)
         if robotAngle is not None:
             robotAngle = -robotAngle * 57
-
-            if self.frontPoint[0] < self.green[0] and closestBall[1] > self.green[1]:
+            if self.frontPoint[0] < self.green[0] and closestBall[1] > self.green[1] and self.frontPoint[1] <= self.green[1]:
+                angle = abs(180 - robotAngle) + abs(angle + 180)
+            elif self.frontPoint[0] < self.green[0] and closestBall[1] > self.green[1]:
                 angle = 180 + angle
                 robotAngle = 180 + robotAngle
                 angle = angle - robotAngle
-            elif self.frontPoint[0] < self.green[0] and closestBall[1] < self.green[1] and self.frontPoint[1] > self.green[1]:
+            elif self.frontPoint[0] < self.green[0] and closestBall[1] < self.green[1] and self.frontPoint[1] >= self.green[1]:
                 angle = (180 - angle)
                 robotAngle = (180 + robotAngle)
                 angle = -(angle + robotAngle)
