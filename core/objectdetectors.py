@@ -5,16 +5,16 @@ from core.configuration.configLoader import current_config
 def getFramePoints(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (128, 98, 0)
-    upperBound = (179, 255, 255)
+    lowerBound = current_config["red lower"]
+    upperBound = current_config["red upper"]
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     return mask
 
 def getFramePointsPhone(image):
     blurred = cv2.GaussianBlur(image, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lowerBound = (0, 200, 149)
-    upperBound = (179, 255, 255)
+    lowerBound = (5, 34, 156)
+    upperBound = (6, 214, 255)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     return mask
 
@@ -180,8 +180,8 @@ def greenGetterRobot(image):
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     #lowerBound = (82, 170, 85)
     #upperBound = (97, 255, 149)
-    lowerBound = (29, 97, 51)
-    upperBound = (93, 150, 186)
+    lowerBound = (37, 124, 156)
+    upperBound = (74, 166, 255)
     mask = cv2.inRange(hsv, lowerBound, upperBound)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -191,3 +191,23 @@ def greenGetterRobot(image):
         rect = cv2.minEnclosingCircle(points)
         rectangles.append(rect)
     return rectangles
+
+
+def getOrangeBall(image):
+    blurred = cv2.GaussianBlur(image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    lowerBound = (11, 68, 202)
+    upperBound = (21, 255, 255)
+    mask = cv2.inRange(hsv, lowerBound, upperBound)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    rectangle = ((0,0), 0)
+    for points in cnts:
+        rect = cv2.minEnclosingCircle(points)
+        ((x, y), r) = rect
+        if r > rectangle[1] and r > 7 and r < 12:
+            rectangle = rect
+    if rectangle == ((0,0), 0):
+        return []
+    return [rectangle]

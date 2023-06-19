@@ -1,6 +1,7 @@
 
 from math import *
 
+
 """
 frame = cv2.VideoCapture(0)
 

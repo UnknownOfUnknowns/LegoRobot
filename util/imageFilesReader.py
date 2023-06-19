@@ -5,26 +5,24 @@ import cv2
 
 
 def getNewestPhoneImage():
-    os.chdir("C:\\Users\\hans\\Pictures\\CameraHub")
 
-    files = []
-    for file in glob.glob("*.png"):
-        files.append(file)
+    list_of_files = glob.glob('/Users/ChristianKjeldgaardJensen/Desktop/imgs/*.png')
+    latest_file = max(list_of_files, key=os.path.getctime)
 
-    sorted(files)
-    return cv2.imread("C:\\Users\\hans\\Pictures\\CameraHub\\" + files[-1])
+    return cv2.imread(latest_file)
 
 
 def getImage(name):
-    return cv2.imread("C:\\Users\\hans\\Pictures\\CameraHub\\" + name)
+    return cv2.imread(name)
 
 
 def getNewestImageName():
-    os.chdir("C:\\Users\\hans\\Pictures\\CameraHub")
-
+    os.chdir("/Users/ChristianKjeldgaardJensen/Desktop/imgs")
+    list_of_files = glob.glob('/Users/ChristianKjeldgaardJensen/Desktop/imgs/*.png')
+    latest_file = max(list_of_files, key=os.path.getctime)
     files = []
     for file in glob.glob("*.png"):
         files.append(file)
 
     sorted(files)
-    return files[-1]
+    return latest_file

@@ -46,4 +46,4 @@ class StandardStrategy:
 
 class DeliverToSmallGoalStrategy:
     def createStrategy(self):
-        return [(OrderType.TARGET, current_config["goal 2"]), (OrderType.TARGET, current_config["goal 1"])]
+        return [(OrderType.TARGET, current_config["goal 3"]), (OrderType.TARGET, current_config["goal 2"]), (OrderType.TARGET, current_config["goal 1"])]

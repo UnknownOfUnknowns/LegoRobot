@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
-from configLoader import saveConfig
+from configLoader import saveConfig, current_config
 from util.imageFilesReader import getNewestPhoneImage
-cap = cv2.VideoCapture(4)
+
+
+cap = cv2.VideoCapture(0)
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -13,19 +15,22 @@ def nothing(x):
 
 def createBarsForColorFrame(windowName):
     cv2.namedWindow(windowName)
-    cv2.createTrackbar("L - H", windowName, 0, 179, nothing)
-    cv2.createTrackbar("L - S", windowName, 0, 255, nothing)
-    cv2.createTrackbar("L - V", windowName, 0, 255, nothing)
-    cv2.createTrackbar("U - H", windowName, 179, 179, nothing)
-    cv2.createTrackbar("U - S", windowName, 255, 255, nothing)
-    cv2.createTrackbar("U - V", windowName, 255, 255, nothing)
+    upper = current_config[windowName + " upper"]
+    lower = current_config[windowName + " lower"]
+    cv2.createTrackbar("L - H", windowName, lower[0], 179, nothing)
+    cv2.createTrackbar("L - S", windowName, lower[1], 255, nothing)
+    cv2.createTrackbar("L - V", windowName, lower[2], 255, nothing)
+    cv2.createTrackbar("U - H", windowName, upper[0], 179, nothing)
+    cv2.createTrackbar("U - S", windowName, upper[1], 255, nothing)
+    cv2.createTrackbar("U - V", windowName, upper[2], 255, nothing)
 
 
 def createBarsForPointFrame(windowName, pointCount):
     cv2.namedWindow(windowName)
     for n in range(1, pointCount + 1):
-        cv2.createTrackbar("x" + str(n), windowName, 0, 1280, nothing)
-        cv2.createTrackbar("y" + str(n), windowName, 0, 720, nothing)
+        point = current_config[windowName +" "+ str(n)]
+        cv2.createTrackbar("x" + str(n), windowName, point[0], 1280, nothing)
+        cv2.createTrackbar("y" + str(n), windowName, point[1], 720, nothing)
 
 def pointConfigActions(frame, windowName, pointCount):
 
@@ -150,13 +155,13 @@ def quadrantConfigSetup():
     return "quadrant", quadrantConfigActions, quadrantGetValuesToBeSaved
 
 def goalGetValuesToBeSaved():
-    return pointGetValuesToSave("goal", 2)
+    return pointGetValuesToSave("goal", 3)
 
 def goalConfigActions(frame):
-    return pointConfigActions(frame, "goal", 2)
+    return pointConfigActions(frame, "goal", 3)
 
 def goalConfigSetup():
-    createBarsForPointFrame("goal", 2)
+    createBarsForPointFrame("goal", 3)
     return "goal", goalConfigActions, goalGetValuesToBeSaved
 
 

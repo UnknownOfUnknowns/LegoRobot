@@ -6,8 +6,8 @@ from core.ObstacleRecoveryStrategies import OrderType
 import math
 from core.simulation import *
 
-PIXEL_TO_MM_CONVERSION = 1.82
-SMALL_CAM_PIX_TO_MM = 0.1
+PIXEL_TO_MM_CONVERSION = 1.7
+SMALL_CAM_PIX_TO_MM = 0.12
 
 
 class CollisionSimulatedException(Exception):
@@ -110,7 +110,7 @@ class Robot:
         if fabs(angle) > 5:
             #if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
             #    raise CollisionSimulatedException
-            self.sender.turn(1.5 * angle)
+            self.sender.turn(1.7 * angle)
             return False
         distance = self.calculateDistance(closestBall)
         #if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):
@@ -143,3 +143,5 @@ class Robot:
         if command[0].name == OrderType.TARGET.name:
             self.driveToBall(command[1], framePoints)
 
+    def closeBay(self):
+        self.sender.closeClaw()

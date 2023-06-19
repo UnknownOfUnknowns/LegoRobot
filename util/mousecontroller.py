@@ -1,14 +1,14 @@
-import mouse
+#import mouse
 import time
 from util.imageFilesReader import *
 
 
 # 928,787
 def getImageNameFromPhone():
-    time.sleep(2)
-    mouse.move(928, 787)
+    #time.sleep(2)
+    #mouse.move(928, 787)
     oldImage = getNewestImageName()
-    mouse.click('left')
+    #mouse.click('left')
     image = getNewestImageName()
     while image == oldImage:
         image = getNewestImageName()

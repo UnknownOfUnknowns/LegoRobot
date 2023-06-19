@@ -9,7 +9,7 @@ class Sender:
     def connect(self):
         serverPort = 12001
         serverSocket = socket(AF_INET, SOCK_STREAM)
-        serverSocket.bind(('172.20.10.8', serverPort))
+        serverSocket.bind(('172.20.10.4', serverPort))
 
         serverSocket.listen(1)
         print('The server is ready to receive')
@@ -22,7 +22,8 @@ class Sender:
         try:
             self.connectionSocket.send(command.encode())
             self.connectionSocket.recv(1024)
-        except ConnectionAbortedError as e:
+
+        except ConnectionError as e:
             print(e)
             print("con err")
             self.connectionSocket = self.connect()
@@ -32,6 +33,7 @@ class Sender:
             direction = 'b'
 
         sentence = 'd' + " " + direction + " " + str(distance)
+        print(sentence)
         self.send(sentence)
 
     def turn(self, angle):

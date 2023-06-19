@@ -1,6 +1,6 @@
 from core.objectdetectors import *
-
-cap = cv2.VideoCapture(4)
+from math import *
+cap = cv2.VideoCapture(2)
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -36,9 +36,20 @@ while True:
     if min == 0 or max == 0 or p1 == 0 or p2 == 0:
         continue
     balls = getBallsHough(frame, p1, p2, min, max)
+    orangeBall = getOrangeBall(frame)
+    print(len(balls) == 1)
+    """
+    if len(orangeBall) != 1:
+        print("err")
+        cv2.imshow("Trackbars", frame)
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+        continue
+                """
     for ((x, y), radius) in balls:
-        # To see the centroid clearly
 
+        #if dist((x,y), orangeBall[0][0]) > 5:
         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
 
     cv2.imshow("Trackbars", frame)

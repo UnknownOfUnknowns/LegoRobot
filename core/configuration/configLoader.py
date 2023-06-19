@@ -2,9 +2,8 @@ import collections.abc
 import json
 
 
-
 def loadConfig(file):
-    file = open(file+".json", "r")
+    file = open(file + ".json", "r")
     data = json.load(file)
 
     formatted = {}
@@ -18,18 +17,17 @@ def loadConfigStandard(file):
     return json.load(file)
 
 
+current_config = loadConfig("/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfigmonday")
 
-current_config = loadConfig("C:\\Users\\hans\\PycharmProjects\\LegoRobot\\core\\configuration\\compconf")
-
-robot_cam_config = loadConfigStandard("C:\\Users\\hans\\PycharmProjects\\LegoRobot\\core\\configuration\\robotCamConfig")
+robot_cam_config = loadConfigStandard(
+    "/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfig")
 
 print(current_config)
-
 
 
 def saveConfig(file, config):
     jsonObject = json.dumps(config, indent=4)
 
-    file = open("C:\\Users\\hans\\PycharmProjects\\LegoRobot\\core\\configuration\\"+file+".json", "w")
+    file = open("/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfig" + file + ".json", "w")
 
     file.write(jsonObject)

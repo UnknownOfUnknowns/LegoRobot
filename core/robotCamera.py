@@ -29,11 +29,23 @@ class RobotCamera:
 
     def findBalls(self):
         for image in self.images:
-            balls = getBallsHough(image, 200, 14, 93, 93)
-            if len(balls) == 1:
+            balls = getBallsHough(image, 200, 15, 90, 100)
+            #second condition is to avoid balls being detected in the bay
+            if len(balls) > 1:
+                print("many balls")
+            if len(balls) == 1 and balls[0][0][1] < 860:
                 self.detectedBall = balls[0]
                 return
-        self.detectedBall = None
+
+    def findOrange(self):
+        for image in self.images:
+            balls = getBallsHough(image, 200, 10, 90, 100)
+            # second condition is to avoid balls being detected in the bay
+            balls.sort(key=lambda x: x[0][1])
+
+            if len(balls) >= 1 and balls[0][0][1] < 860:
+                self.detectedBall = balls[0]
+                return
 
     def distanceToBall(self):
         if self.detectedBall is None:
@@ -71,23 +83,19 @@ class RobotCamera:
             return -1
 
         return 0
-"""
-while True:
-    #_, frh = fhigh.read()
-    frames = []
-    for i in range(0,5):
-        _, fr = frame.read()
-        frames.append(fr)
 
-    roboCam = RobotCamera(frames)
-    roboCam.findBalls()
-    print(roboCam.distanceToBall())
-    if roboCam.detectedBall is not None:
-        ((x,y), radius) = roboCam.detectedBall
-        cv2.circle(frames[0], (int(x), int(y)), int(radius), (0, 255, 255), 5)
+    #680, 1170, 551
 
-    cv2.imshow("Robot camera", frames[0])
-    #cv2.imshow("High cam", frh)
-    if cv2.waitKey(10) & 0xFF == ord('q'):
-        break
-"""
+    def driveToPickupByEdge(self):
+        image = self.images[0]
+        frame = getFramePointsPhone(image)
+        count = 0
+        for i in range(730, 1100):
+            for j in range(300, 700):
+                if frame[j,i] == 255:
+                    count +=1
+                    #make sure it is not an erroneous detection
+                    if count > 100:
+                        return False
+
+        return True
