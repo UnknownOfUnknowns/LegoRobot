@@ -31,9 +31,9 @@ class RobotCamera:
         for image in self.images:
             balls = getBallsHough(image, 200, 15, 90, 100)
             #second condition is to avoid balls being detected in the bay
-            if len(balls) > 1:
-                print("many balls")
-            if len(balls) == 1 and balls[0][0][1] < 860:
+            balls.sort(key=lambda x: x[0][1])
+
+            if len(balls) >= 1 and balls[0][0][1] < 860:
                 self.detectedBall = balls[0]
                 return
 
@@ -43,7 +43,7 @@ class RobotCamera:
             # second condition is to avoid balls being detected in the bay
             balls.sort(key=lambda x: x[0][1])
 
-            if len(balls) >= 1 and balls[0][0][1] < 860:
+            if len(balls) >= 1 and balls[0][0][1] < 840:
                 self.detectedBall = balls[0]
                 return
 

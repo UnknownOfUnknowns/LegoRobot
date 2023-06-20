@@ -1,3 +1,5 @@
+import enum
+
 from Robot import *
 from sender import *
 from objectdetectors import *
@@ -12,6 +14,8 @@ sender = Sender()
 frame = cv2.VideoCapture(0)
 frame.set(3, 1280)
 frame.set(4, 720)
+
+
 
 def showCaptures(caps):
     for x in caps:
@@ -34,17 +38,116 @@ def showImage(image):
     cv2.destroyAllWindows()
 
 
-# court_box =  mapOutFrame(frame)
-# for box in court_box:
-#    cv2.rectangle(frame, box, (0, 0, 255), 2)
+def drawCirlesOnFrame(fr, green, blue, yellow, balls):
+    for ((x, y), radius) in green:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    for ((x, y), radius) in blue:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    for ((x, y), radius) in yellow:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
+    for ((x, y), radius) in balls:
+        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 255), 5)
 
-# court_box = court_box[0]
-# cropped = frame[court_box[1]:court_box[1]+court_box[3], court_box[0]:court_box[0]+court_box[2]]
+    return fr
+
 currentStrategy = []
 closePickupMode = False
-lastRoundBallCount = 0
+lastRoundBallCount = 8
 lastTargetBall = None
 retryCount = 0
+prevCommand = None
+class ControlTypes(enum.Enum):
+    PICK_UP_ORANGE = 1
+    PICK_UP_WHITE = 2
+    GO_TO_GOAL = 3
+    RETRY_OLD_TARGET = 4
+    FOLLOW_STRATEGY = 5
+    GET_NEW_FRAME = 6
+    DRIVE_NORMALLY = 7
+
+def determineDriveMode(allBalls, robot, robotCamera, framePoints):
+    if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint,currentStrategy[0][1]) < 100:
+        currentStrategy.pop(0)
+
+        if len(currentStrategy) == 0:
+            return determineDriveMode(allBalls, robot, robotCamera, framePoints)
+        else:
+            return ControlTypes.FOLLOW_STRATEGY
+    if len(currentStrategy) != 0:
+        return ControlTypes.FOLLOW_STRATEGY
+
+    robotCamera.findBalls()
+    whiteUnderRobot = robotCamera.detectedBall
+    if whiteUnderRobot is not None and len(allBalls) != 0:
+        return ControlTypes.PICK_UP_WHITE
+    robotCamera.findOrange()
+    orangeUnderRobot = robotCamera.detectedBall
+
+    if orangeUnderRobot is not None and len(allBalls) == 0:
+        return ControlTypes.PICK_UP_ORANGE
+    if len(allBalls) < lastRoundBallCount:
+        if prevCommand == ControlTypes.RETRY_OLD_TARGET:
+            return ControlTypes.DRIVE_NORMALLY
+        if prevCommand == ControlTypes.GET_NEW_FRAME and lastTargetBall is not None:
+            return ControlTypes.RETRY_OLD_TARGET
+        return ControlTypes.GET_NEW_FRAME
+    elif len(allBalls) == 0:
+        return ControlTypes.GO_TO_GOAL
+    else:
+        if lastTargetBall is not None and doesOldBallHaveACloseNewBalls(lastTargetBall, allBalls) and prevCommand != ControlTypes.RETRY_OLD_TARGET:
+            return ControlTypes.RETRY_OLD_TARGET
+        return ControlTypes.DRIVE_NORMALLY
+
+
+
+def doesOldBallHaveACloseNewBalls(last, all):
+    for cor, r in all:
+        if dist(last, cor) < 10:
+            return True
+    return False
+
+
+def filterBalls(orange, all):
+    if len(orange) == 0:
+        return all
+    elif len(orange) == 1 and len(allBalls) > 1:
+        interBalls = []
+        for ((x, y), radius) in allBalls:
+            if dist((x,y), orangeBall[0][0]) > 10:
+                interBalls.append(((x,y),radius))
+
+        return interBalls
+    elif len(allBalls) == 1:
+        return orangeBall
+    return all
+
+
+def getNewTargetBall(balls, framePoints, robot):
+    priorityArray = [balls[0]]
+    for ball in balls[1:]:
+        if isCloseToEdge(ball, framePoints):
+            priorityArray.append(ball)
+        angle = robot.calculateAngleToBall(ball)
+        if abs(angle) > 90:
+            priorityArray.append(ball)
+        distance = robot.calculateDistance(ball)
+        if distance < robot.calculateDistance(priorityArray[0]):
+            priorityArray.insert(0, ball)
+        else:
+            priorityArray.append(ball)
+
+    chosenBall = priorityArray[0]
+
+    commands =[]
+    close = isCloseToEdge(chosenBall, framePoints)
+
+
+    commands.append((OrderType.TARGET, getIntermediatePosition(chosenBall, close)))
+
+
+
+
+
 while True:
     #phoneImgName = getNewestImageName()
     readOk, fr = frame.read()
@@ -59,57 +162,93 @@ while True:
     green = greenGetter(fr)
     blue = blueGetter(fr)
     yellow = yellowGetter(fr)
-    balls =[]
-    orangeBall = getOrangeBall(fr)
-    if len(orangeBall) == 0:
-        allBalls = balls
-    elif len(orangeBall) == 1 and len(allBalls) > 1:
-        for ((x, y), radius) in allBalls:
-            if dist((x,y), orangeBall[0][0]) > 10:
-                balls.append(((x,y),radius))
-    elif len(allBalls) == 1:
-        balls = orangeBall
-    for ((x, y), radius) in green:
-        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
-    for ((x, y), radius) in blue:
-        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
-    for ((x, y), radius) in yellow:
-        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 0), 1)
-    for ((x, y), radius) in balls:
-        cv2.circle(fr, (int(x), int(y)), int(radius), (0, 255, 255), 5)
 
-    cv2.imshow("t", fr)
+    orangeBall = getOrangeBall(fr)
+    balls = filterBalls(orangeBall, allBalls)
+
+
+    cv2.imshow("t", drawCirlesOnFrame(fr, green, blue, yellow, balls))
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-    if len(green) > 0 and len(blue) > 0:
+    if len(green) > 0 and len(blue) > 0 and len(yellow) > 0:
         ((x, y), _) = green[0]
         centrumGreen = (x, y)
         ((x, y), _) = blue[0]
         centrumBlue = (x, y)
         ((x, y), _) = yellow[0]
         centrumYellow = (x, y)
-        # print(centrumBlue,centrumGreen)
+
         robot = Robot(centrumBlue, centrumGreen, centrumYellow, sender)
+        roboCam = RobotCamera(frames)
 
-        if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint, currentStrategy[0][1]) < 100:
-            currentStrategy.pop(0)
-
-        if len(currentStrategy) > 0:
+        driveMode = determineDriveMode(allBalls, robot, roboCam, framePoints)
+        prevCommand = driveMode
+        if driveMode == ControlTypes.DRIVE_NORMALLY:
+            lastRoundBallCount = len(allBalls)
+            closestBall = robot.findClosestBall(balls)
+            lastTargetBall = closestBall
+            closeToEdge = isCloseToEdge(closestBall, framePoints)
+            if closeToEdge is not None and not closePickupMode:
+                closePickupMode = True
+                currentStrategy = [(OrderType.TARGET, getIntermediatePosition(closestBall, closeToEdge))]
+                continue
+            robot.driveToBall(closestBall, framePoints)
+        elif driveMode == ControlTypes.FOLLOW_STRATEGY:
             order = currentStrategy[0]
             robot.executeStrategyElement(order, framePoints)
+        elif driveMode == ControlTypes.GET_NEW_FRAME:
             continue
-
-        roboCam = RobotCamera(frames)
-        if len(allBalls) < 1:
+        elif driveMode == ControlTypes.GO_TO_GOAL:
+            currentStrategy = DeliverToSmallGoalStrategy().createStrategy()
+        elif driveMode == ControlTypes.PICK_UP_ORANGE:
             roboCam.findOrange()
-        else:
+            roboCamDistance = roboCam.distanceToBall()
+            if roboCamDistance == 0 or not roboCam.driveToPickupByEdge() == True:
+                lastRoundBallCount -= 1
+                robot.closeBay()
+                robot.drive(-100)
+            elif roboCamDistance > 0:
+                # we have a ball on the small cam so we dont save it for the large cam later on
+                isStraightOn = roboCam.relationToThreshold()
+                if isStraightOn < 0:
+                    robot.turnRobot(10)
+                elif isStraightOn > 0:
+                    robot.turnRobot(-10)
+                else:
+                    driveDistance = roboCamDistance
+                    if driveDistance < 50:
+                        driveDistance = 50
+                    else:
+                        driveDistance *= 1.5
+                    robot.drive(driveDistance, largeCam=False)
+        elif driveMode == ControlTypes.PICK_UP_WHITE:
             roboCam.findBalls()
+            roboCamDistance = roboCam.distanceToBall()
+            if (roboCamDistance == 0 or not roboCam.driveToPickupByEdge() == True):
+                lastRoundBallCount -=1
+                robot.pickUpBall()
+                robot.drive(-100)
+            elif roboCamDistance > 0:
+                # we have a ball on the small cam so we dont save it for the large cam later on
+                lastTargetBall = None
+                isStraightOn = roboCam.relationToThreshold()
+                if isStraightOn < 0:
+                    robot.turnRobot(10)
+                elif isStraightOn > 0:
+                    robot.turnRobot(-10)
+                else:
+                    driveDistance = roboCamDistance
+                    if driveDistance < 50:
+                        driveDistance = 50
 
+                    else:
+                        driveDistance *= 1.5
+                    robot.drive(driveDistance, largeCam=False)
+        elif driveMode == ControlTypes.RETRY_OLD_TARGET:
+            robot.driveToBall(lastTargetBall, framePoints)
 
-
-        roboCamDistance = roboCam.distanceToBall()
-
+        """
         if len(allBalls) < lastRoundBallCount - 1 and roboCamDistance == -1:
             continue
         else:
@@ -161,7 +300,7 @@ while True:
             robot.driveToBall(closestBall, framePoints)
 
 
-"""
+
 for box in getRobotCoordinates(frame):
     cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
 

@@ -29,3 +29,18 @@ def getIntermediatePosition(ball, frameDir):
         return (x, y+PICKUP_OFFSET)
 
     return (x,y)
+
+
+CLOSE_OFFSET = 50
+def getCloseOffset(ball, frameDir):
+    x,y = ball
+    if frameDir == "Left":
+        return (x + CLOSE_OFFSET, y)
+    if frameDir == "Right":
+        return (x - CLOSE_OFFSET, y)
+    if frameDir == "Down":
+        return (x, y-CLOSE_OFFSET)
+    if frameDir == "Up":
+        return (x, y+CLOSE_OFFSET)
+
+    return (x,y)

@@ -110,7 +110,10 @@ class Robot:
         if fabs(angle) > 5:
             #if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
             #    raise CollisionSimulatedException
-            self.sender.turn(1.7 * angle)
+            if angle < 12:
+                self.sender.turn(2.5 * angle)
+            else:
+                self.sender.turn(1.7 * angle)
             return False
         distance = self.calculateDistance(closestBall)
         #if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):

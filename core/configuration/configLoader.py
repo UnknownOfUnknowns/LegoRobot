@@ -17,7 +17,7 @@ def loadConfigStandard(file):
     return json.load(file)
 
 
-current_config = loadConfig("/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfigmonday")
+current_config = loadConfig("/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfigtuesday")
 
 robot_cam_config = loadConfigStandard(
     "/Users/ChristianKjeldgaardJensen/PycharmProjects/LegoRobot/core/configuration/robotCamConfig")
