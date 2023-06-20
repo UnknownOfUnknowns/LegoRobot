@@ -15,7 +15,7 @@ class RobotCamera:
         self.detectedBall = None
 
         self.middle = 1920 / 2
-        self.threshold = (self.middle - 655) / 2
+        self.threshold = (self.middle - 655) / 3
 
     def relationToThreshold(self):
         if self.detectedBall is None:
@@ -91,7 +91,7 @@ class RobotCamera:
         frame = getFramePointsPhone(image)
         count = 0
         for i in range(730, 1100):
-            for j in range(300, 700):
+            for j in range(370, 700):
                 if frame[j,i] == 255:
                     count +=1
                     #make sure it is not an erroneous detection

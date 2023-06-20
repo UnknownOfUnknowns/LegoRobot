@@ -1,7 +1,8 @@
 from math import sqrt, cos, sin
 from enum import Enum
 from core.configuration.configLoader import current_config
-quadrants = [(1, (150, 100)), (2, (500, 100)), (3, (150, 370)), (4, (500, 370))]
+quadrants = [(1, current_config["quadrant 1"]), (2, current_config["quadrant 2"]),
+             (3, current_config["quadrant 3"]), (4, current_config["quadrant 4"])]
 
 
 class OrderType(Enum):
@@ -25,21 +26,21 @@ class StandardStrategy:
 
     def createStrategy(self):
         BACKOFF_DISTANCE = -20
-        commands = [(OrderType.DRIVE_COMMAND, BACKOFF_DISTANCE)]
+        commands = []
         robotPositionAfterReverse = (self.robotFront[0] + BACKOFF_DISTANCE * cos(self.robotAngle / 57.2958),
                                      (self.robotFront[1] - BACKOFF_DISTANCE * sin(self.robotAngle / 57.2958)))
         robotQuadrant = self.calculateQuadrant(robotPositionAfterReverse)
         commands.append((OrderType.TARGET, quadrants[robotQuadrant - 1][1]))
         targetQuadrant = self.calculateQuadrant(self.target)
         if robotQuadrant == 1 and targetQuadrant == 4:
-            commands.append((OrderType.TARGET, 2))
+            commands.append((OrderType.TARGET, quadrants[1][1]))
         elif robotQuadrant == 2 and targetQuadrant == 3:
-            commands.append((OrderType.TARGET, 1))
+            commands.append((OrderType.TARGET, quadrants[0][1]))
         elif robotQuadrant == 3 and targetQuadrant == 2:
-            commands.append((OrderType.TARGET, 1))
+            commands.append((OrderType.TARGET, quadrants[0][1]))
         elif robotQuadrant == 4 and targetQuadrant == 1:
-            commands.append((OrderType.TARGET, 2))
-        commands.append((OrderType.TARGET, targetQuadrant))
+            commands.append((OrderType.TARGET, quadrants[1][1]))
+        commands.append((OrderType.TARGET, quadrants[targetQuadrant-1][1]))
 
         return commands
 

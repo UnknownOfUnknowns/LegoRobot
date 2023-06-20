@@ -31,18 +31,28 @@ def robotSize(angle):
     return robot
 
 
-def robotMoving(coordinates, blue_point, green_point, court):
+def robotMoving(coordinates, blue_point, green_point, court, angle, distance):
     if blue_point[0] > green_point[0]:
         max_x_min_y_coord = max(coordinates, key=lambda coord: (coord[0], coord[1]))
         max_x_max_y_coord = max(coordinates, key=lambda coord: (coord[0], -coord[1]))
-        moved_coordinates = moveCoordinates(max_x_min_y_coord, max_x_max_y_coord, 50, pi / 6)
+        moved_coordinates = moveCoordinates(max_x_min_y_coord, max_x_max_y_coord, distance, -angle)
     else:
         min_x_min_y_coord = min(coordinates, key=lambda coord: (coord[0], coord[1]))
         min_x_max_y_coord = min(coordinates, key=lambda coord: (coord[0], -coord[1]))
-        moved_coordinates = moveCoordinates(min_x_min_y_coord, min_x_max_y_coord, -50, pi / 6)
+        moved_coordinates = moveCoordinates(min_x_min_y_coord, min_x_max_y_coord, distance, -angle)
 
     return not obstacleCollision(moved_coordinates, court)
 
+def calculateRobotCoordinates(robot):
+    green = robot.green
+    robotPoints = []
+    for x in range(int(green[0] - 76), int(green[0] + 227), 5):
+        for y in range(int(green[1] - 58), int(green[1] + 58), 5):
+            robotPoints.append((x, y))
+    for x in range(int(green[0] - 62), int(green[0] + 46), 5):
+        for y in range(int(green[1] - 95), int(green[1] + 95), 5):
+            robotPoints.append((x, y))
+    return robotPoints
 
 def angleBetweenPoints(p1, p2):
     xGrowth = p2[0] - p1[0]
@@ -65,6 +75,8 @@ def robotTurning(coordinates, green_point, angle):
     for coordinate in coordinates:
         x, y = coordinate
         existingAngle = angleBetweenPoints(green_point, coordinate)
+        if existingAngle is None:
+            continue
         newAngle =  -existingAngle + angle
         dist = sqrt((x - green_x) ** 2 + (y - green_y) ** 2)
         newCoordinate = (int(green_x + cos(newAngle) * dist), int(green_y + sin(newAngle) * dist))

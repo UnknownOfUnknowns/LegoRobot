@@ -7,16 +7,19 @@ def nothing(x):
     pass
 
 cv2.namedWindow("Simulator")
-cv2.createTrackbar("turn","Simulator", 0, 100, nothing)
+cv2.createTrackbar("turn","Simulator", 10, 100, nothing)
 
-cv2.createTrackbar("width back","Simulator", 10, 100, nothing)
-cv2.createTrackbar("width front","Simulator", 10, 100, nothing)
+cv2.createTrackbar("width back","Simulator", 10, 300, nothing)
+cv2.createTrackbar("width front","Simulator", 10, 300, nothing)
 
 cv2.createTrackbar("height","Simulator",10, 100, nothing)
 
+cv2.createTrackbar("width back 2","Simulator", 10, 300, nothing)
+cv2.createTrackbar("width front 2","Simulator", 10, 300, nothing)
+
+cv2.createTrackbar("height 2","Simulator",10, 100, nothing)
 while(True):
-    #ret,frame = cam.read()
-    frame = cv2.imread("../../resources/collisionSide.png")
+    ret,frame = cam.read()
     turn = cv2.getTrackbarPos("turn", "Simulator")
     green = greenGetter(frame)
     blue = blueGetter(frame)
@@ -29,8 +32,14 @@ while(True):
         wb = cv2.getTrackbarPos("width back", "Simulator")
         wf = cv2.getTrackbarPos("width front", "Simulator")
         h = cv2.getTrackbarPos("height", "Simulator")
-        for x in range(int(green[0]-wb), int(green[0]+wf)):
-            for y in range(int(green[1]-h), int(green[1]+h)):
+        for x in range(int(green[0]-wb), int(green[0]+wf), 5):
+            for y in range(int(green[1]-h), int(green[1]+h), 5):
+                robotPoints.append((x,y))
+        wb = cv2.getTrackbarPos("width back 2", "Simulator")
+        wf = cv2.getTrackbarPos("width front 2", "Simulator")
+        h = cv2.getTrackbarPos("height 2", "Simulator")
+        for x in range(int(green[0]-wb), int(green[0]+wf), 5):
+            for y in range(int(green[1]-h), int(green[1]+h), 5):
                 robotPoints.append((x,y))
         #minus is used in front of angle to compensate for different coordinate set
         turnedPoints = robotTurning(robotPoints, green, -turn*pi/50)

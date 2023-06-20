@@ -2,12 +2,13 @@ import enum
 
 from Robot import *
 from sender import *
+from simulation import robotMoving, calculateRobotCoordinates
 from objectdetectors import *
 from robotCamera import RobotCamera
 from util.mousecontroller import *
 from core.driveController import *
 from ObstacleRecoveryStrategies import DeliverToSmallGoalStrategy
-from edgeFunctions import isCloseToEdge, getIntermediatePosition
+from edgeFunctions import isCloseToEdge, getIntermediatePosition, getCloseOffset
 from phoneCameraReader import getPhoneImage
 import matplotlib.pyplot as plt
 sender = Sender()
@@ -52,7 +53,7 @@ def drawCirlesOnFrame(fr, green, blue, yellow, balls):
 
 currentStrategy = []
 closePickupMode = False
-lastRoundBallCount = 8
+lastRoundBallCount = 11
 lastTargetBall = None
 retryCount = 0
 prevCommand = None
@@ -65,12 +66,13 @@ class ControlTypes(enum.Enum):
     GET_NEW_FRAME = 6
     DRIVE_NORMALLY = 7
 
-def determineDriveMode(allBalls, robot, robotCamera, framePoints):
-    if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint,currentStrategy[0][1]) < 100:
+
+def determineDriveMode(allBalls, activeBalls, robot, robotCamera, framePoints):
+    if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.frontPoint,currentStrategy[0][1]) < 30:
         currentStrategy.pop(0)
 
         if len(currentStrategy) == 0:
-            return determineDriveMode(allBalls, robot, robotCamera, framePoints)
+            return determineDriveMode(allBalls, activeBalls, robot, robotCamera, framePoints)
         else:
             return ControlTypes.FOLLOW_STRATEGY
     if len(currentStrategy) != 0:
@@ -79,12 +81,20 @@ def determineDriveMode(allBalls, robot, robotCamera, framePoints):
     robotCamera.findBalls()
     whiteUnderRobot = robotCamera.detectedBall
     if whiteUnderRobot is not None and len(allBalls) != 0:
+        currentStrategy.clear()
         return ControlTypes.PICK_UP_WHITE
     robotCamera.findOrange()
     orangeUnderRobot = robotCamera.detectedBall
 
     if orangeUnderRobot is not None and len(allBalls) == 0:
+        currentStrategy.clear()
         return ControlTypes.PICK_UP_ORANGE
+    if len(allBalls) < lastRoundBallCount and prevCommand != ControlTypes.GET_NEW_FRAME:
+        return ControlTypes.GET_NEW_FRAME
+    calcBalls = [x[0] for x in activeBalls]
+    return getNewTargetBallStrategy(calcBalls, framePoints, robot)
+
+    """
     if len(allBalls) < lastRoundBallCount:
         if prevCommand == ControlTypes.RETRY_OLD_TARGET:
             return ControlTypes.DRIVE_NORMALLY
@@ -97,7 +107,7 @@ def determineDriveMode(allBalls, robot, robotCamera, framePoints):
         if lastTargetBall is not None and doesOldBallHaveACloseNewBalls(lastTargetBall, allBalls) and prevCommand != ControlTypes.RETRY_OLD_TARGET:
             return ControlTypes.RETRY_OLD_TARGET
         return ControlTypes.DRIVE_NORMALLY
-
+"""
 
 
 def doesOldBallHaveACloseNewBalls(last, all):
@@ -121,8 +131,23 @@ def filterBalls(orange, all):
         return orangeBall
     return all
 
+def doesRobotHitObstacle(image, court, robotPoints, target):
+    tx, ty= target
+    tx, ty = int(tx), int(ty)
+    for point in robotPoints:
+        cv2.line(image, point, (tx,ty), (10, 10 ,10), 1)
+    for x in range(0,1280):
+        for y in range(0,720):
+            if court[y,x] == 255 and (image[y,x] == [10,10,10]).all():
+                return True
+    return False
 
-def getNewTargetBall(balls, framePoints, robot):
+
+
+
+def getNewTargetBallStrategy(balls, framePoints, robot):
+    if len(balls) == 0:
+        return []
     priorityArray = [balls[0]]
     for ball in balls[1:]:
         if isCloseToEdge(ball, framePoints):
@@ -141,8 +166,24 @@ def getNewTargetBall(balls, framePoints, robot):
     commands =[]
     close = isCloseToEdge(chosenBall, framePoints)
 
+    if close is not None:
+        commands.append((OrderType.TARGET, getIntermediatePosition(chosenBall, close)))
+        commands.append((OrderType.TARGET, getCloseOffset(chosenBall, close)))
+    else:
+        robotCor = calculateRobotCoordinates(robot)
 
-    commands.append((OrderType.TARGET, getIntermediatePosition(chosenBall, close)))
+        robotAngle = angleBetweenPoints(robot.green, robot.frontPoint)
+        if robotAngle is not None:
+            robotAngle = -robotAngle * 57
+        else:
+            robotAngle = 0
+        if doesRobotHitObstacle(fr, framePoints, robotCor, chosenBall):
+
+            strategy = StandardStrategy(robot.frontPoint, robotAngle, chosenBall)
+            commands = strategy.createStrategy()
+
+        commands.append((OrderType.TARGET, chosenBall))
+    return commands
 
 
 
@@ -182,7 +223,7 @@ while True:
         robot = Robot(centrumBlue, centrumGreen, centrumYellow, sender)
         roboCam = RobotCamera(frames)
 
-        driveMode = determineDriveMode(allBalls, robot, roboCam, framePoints)
+        driveMode = determineDriveMode(allBalls, balls, robot, roboCam, framePoints)
         prevCommand = driveMode
         if driveMode == ControlTypes.DRIVE_NORMALLY:
             lastRoundBallCount = len(allBalls)
@@ -247,7 +288,8 @@ while True:
                     robot.drive(driveDistance, largeCam=False)
         elif driveMode == ControlTypes.RETRY_OLD_TARGET:
             robot.driveToBall(lastTargetBall, framePoints)
-
+        else:
+            currentStrategy = driveMode
         """
         if len(allBalls) < lastRoundBallCount - 1 and roboCamDistance == -1:
             continue
