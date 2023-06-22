@@ -78,7 +78,7 @@ class ControlTypes(enum.Enum):
 
 
 def determineDriveMode(allBalls, activeBalls, robot, robotCamera, framePoints):
-    if time.time() - startTime > 0:
+    if time.time() - startTime > 360:
         if len(currentStrategy) > 0 and currentStrategy[0][0] == OrderType.TARGET and dist(robot.front,
                                                                                            currentStrategy[0][1]) < 30:
             currentStrategy.pop(0)
