@@ -91,7 +91,7 @@ class RobotCamera:
         frame = getFramePointsPhone(image)
         count = 0
         for i in range(730, 1100):
-            for j in range(370, 700):
+            for j in range(320, 700):
                 if frame[j,i] == 255:
                     count +=1
                     #make sure it is not an erroneous detection

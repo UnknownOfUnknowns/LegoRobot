@@ -28,7 +28,7 @@ while True:
     if len(greenPoints) == 0:
         redFound = camera.findFirstRedEdge()
         if redFound == -1:
-            robot.drive(200, largeCam=False)
+            robot.drive(300, largeCam=False)
 
         else:
             if turnCount == 2:

@@ -36,7 +36,7 @@ class Robot:
         return v
 
     def findClosestBall(self, balls):
-        closest_ball = ()
+        closest_ball = (500, 500)
         closest_distance = 30000
         for ((x, y), radius) in balls:
             a = self.front[0] - x
@@ -111,9 +111,9 @@ class Robot:
             #if obstacleCollision(robotTurning(self.generateRobotPoints(), self.green, angle),court):
             #    raise CollisionSimulatedException
             if angle < 12:
-                self.sender.turn(2.5 * angle)
+                self.sender.turn(angle)
             else:
-                self.sender.turn(1.7 * angle)
+                self.sender.turn(0.7* angle)
             return False
         distance = self.calculateDistance(closestBall)
         #if not robotMoving(self.generateRobotPoints(), self.blue, self.green, court):

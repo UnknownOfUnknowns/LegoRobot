@@ -1,32 +1,35 @@
 
 
 def isCloseToEdge(ball, framePoints):
+    edges = []
     for i in range(1, 50):
         try:
 
             if framePoints[int(ball[1]), int(ball[0]-i)] == 255:
-                return "Left"
+                edges.append("Left")
             if framePoints[int(ball[1]),int(ball[0] + i)] == 255:
-                return "Right"
+                edges.append("Right")
             if framePoints[int(ball[1]+i), int(ball[0])] == 255:
-                return "Down"
-            if framePoints[ int(ball[1]-i), int(ball[0])] == 255:
-                return "Up"
+                edges.append("Down")
+            if framePoints[int(ball[1]-i), int(ball[0])] == 255:
+                edges.append("Up")
         except:
             pass
-    return None
+    if edges == []:
+        return None
+    return list(dict.fromkeys(edges))
 
 PICKUP_OFFSET = 250
-def getIntermediatePosition(ball, frameDir):
+def getIntermediatePosition(ball, frameDir : list):
     x,y = ball
-    if frameDir == "Left":
-        return (x + PICKUP_OFFSET, y)
-    if frameDir == "Right":
-        return (x - PICKUP_OFFSET, y)
-    if frameDir == "Down":
-        return (x, y-PICKUP_OFFSET)
-    if frameDir == "Up":
-        return (x, y+PICKUP_OFFSET)
+    if "Left" in frameDir:
+        x,y =  (x + PICKUP_OFFSET, y)
+    if "Right" in frameDir:
+        x,y =  (x - PICKUP_OFFSET, y)
+    if "Down" in frameDir:
+        x, y = (x, y-PICKUP_OFFSET)
+    if "Up" in frameDir:
+        x,y =  (x, y+PICKUP_OFFSET)
 
     return (x,y)
 
@@ -34,13 +37,13 @@ def getIntermediatePosition(ball, frameDir):
 CLOSE_OFFSET = 10
 def getCloseOffset(ball, frameDir):
     x,y = ball
-    if frameDir == "Left":
-        return (x + CLOSE_OFFSET, y)
-    if frameDir == "Right":
-        return (x - CLOSE_OFFSET, y)
-    if frameDir == "Down":
-        return (x, y-CLOSE_OFFSET)
-    if frameDir == "Up":
-        return (x, y+CLOSE_OFFSET)
+    if "Left" in frameDir:
+        x, y = (x + CLOSE_OFFSET, y)
+    if "Right" in frameDir:
+        x,y =  (x - CLOSE_OFFSET, y)
+    if "Down" in frameDir:
+        x, y = (x, y-CLOSE_OFFSET)
+    if "Up" in frameDir:
+        x,y =  (x, y+CLOSE_OFFSET)
 
     return (x,y)
